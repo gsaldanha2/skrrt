@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="main.css">
+    <meta charset="UTF-8">
+    <title>skrrt.io dev-only</title>
+
+    <img src="img/car1.png" style="display: none;" id="player1Img"/>
+    <img src="img/map.png" style="display: none;" id="mapImg"/>
+    <img src="img/gascan.png" style="display: none;" id="gasCanImg"/>
+    <img src="img/wreckage.png" style="display: none;" id="wreckageImg"/>
+    <img src="img/launchpad.png" style="display: none;" id="launchpadImg"/>
+    <img src="img/waterTile.png" style="display: none;" id="waterImg"/>
+    <img src="img/tile.png" style="display: none;" id="tileImg"/>
+
+</head>
+<body>
+
+<div class="menuArea">
+    <div class="loginArea" id="loginArea">
+        <label class="titleLabel">SKRRT.IO</label>
+        <label class="nickLabel">Your Name:</label>
+        <input placeholder="Nickname" class="nickInput" id="nickInput" maxlength="15">
+        <button class="playButton" id="playButton">PLAY</button>
+    </div>
+</div>
+
+<canvas id="canvas"><p>Your browser does not support HTML5!</p></canvas>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript" src="buffers/flatbuffers.js"></script>
+<script type="text/javascript" src="buffers/InputPacketBuffer_generated.js"></script>
+<script type="text/javascript" src="buffers/SnapshotBuffer_generated.js"></script>
+<script type="text/javascript" src="bundle.js"></script>
+
+</body>
+</html>

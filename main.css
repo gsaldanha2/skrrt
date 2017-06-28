@@ -1,0 +1,101 @@
+html, body {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    font-family: "HelveticaNeue-CondensedBold", "Helvetica Neue";
+}
+
+.menuArea {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* align panel */
+    top: 0;
+    left: 0;
+
+    box-sizing: border-box;
+}
+
+.loginArea {
+    position: absolute;
+    display: none;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: auto;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 50px;
+}
+
+.titleLabel {
+    display: block;
+    color: #ffffff;
+    text-align: center;
+    font-size: 40pt;
+    margin-bottom: 70px;
+    margin-top: 150px;
+}
+
+.playButton {
+    display: block;
+    color: #ffffff;
+    text-align: center;
+    font-size: 14pt;
+
+    background-color: #cc0000;
+    border: solid #cc0000 3px;
+    border-radius: 25px;
+
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+
+    padding: 3px 30px 3px 30px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+
+.playButton:hover {
+    background-color: transparent;
+}
+
+.playButton:active {
+    background-color: #8d0000;
+    outline: 0;
+}
+
+.nickLabel {
+    display: block;
+    color: #ffffff;
+    text-align: center;
+    font-size: 20pt;
+    margin-bottom: 20px;
+}
+
+.nickInput {
+    display: block;
+    border-bottom: solid #cc0000 3px;
+    background-color: transparent;
+    color: #ffffff;
+    width: 300px;
+    padding-bottom: 4px;
+    text-align: center;
+    font-size: 14pt;
+
+    /* hide all borders but bottom */
+    outline: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+}
+
+canvas {
+    z-index: 1;
+    overflow: hidden;
+}
