@@ -283,6 +283,90 @@ buffers.PlayerBuffer.endPlayerBuffer = function(builder) {
 /**
  * @constructor
  */
+buffers.PlayerInfo = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {buffers.PlayerInfo}
+ */
+buffers.PlayerInfo.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {buffers.PlayerInfo=} obj
+ * @returns {buffers.PlayerInfo}
+ */
+buffers.PlayerInfo.getRootAsPlayerInfo = function(bb, obj) {
+  return (obj || new buffers.PlayerInfo).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+buffers.PlayerInfo.prototype.name = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+buffers.PlayerInfo.prototype.rank = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+buffers.PlayerInfo.startPlayerInfo = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ */
+buffers.PlayerInfo.addName = function(builder, nameOffset) {
+  builder.addFieldOffset(0, nameOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} rank
+ */
+buffers.PlayerInfo.addRank = function(builder, rank) {
+  builder.addFieldInt16(1, rank, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+buffers.PlayerInfo.endPlayerInfo = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 buffers.GasCanBuffer = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -654,9 +738,9 @@ buffers.InputPacketBuffer.getRootAsInputPacketBuffer = function(bb, obj) {
 /**
  * @returns {number}
  */
-buffers.InputPacketBuffer.prototype.mouseAngle = function() {
+buffers.InputPacketBuffer.prototype.laneChange = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+  return offset ? this.bb.readInt8(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -676,10 +760,10 @@ buffers.InputPacketBuffer.startInputPacketBuffer = function(builder) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} mouseAngle
+ * @param {number} laneChange
  */
-buffers.InputPacketBuffer.addMouseAngle = function(builder, mouseAngle) {
-  builder.addFieldInt16(0, mouseAngle, 0);
+buffers.InputPacketBuffer.addLaneChange = function(builder, laneChange) {
+  builder.addFieldInt8(0, laneChange, 0);
 };
 
 /**
@@ -830,10 +914,37 @@ buffers.SnapshotBuffer.prototype.player = function(obj) {
 };
 
 /**
+ * @param {number} index
+ * @param {buffers.PlayerInfo=} obj
+ * @returns {buffers.PlayerInfo}
+ */
+buffers.SnapshotBuffer.prototype.leaderboard = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? (obj || new buffers.PlayerInfo).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+buffers.SnapshotBuffer.prototype.leaderboardLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {buffers.PlayerInfo=} obj
+ * @returns {buffers.PlayerInfo}
+ */
+buffers.SnapshotBuffer.prototype.myInfo = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? (obj || new buffers.PlayerInfo).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
  * @returns {flatbuffers.Long}
  */
 buffers.SnapshotBuffer.prototype.serverTimeMs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
+  var offset = this.bb.__offset(this.bb_pos, 12);
   return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
 };
 
@@ -841,7 +952,7 @@ buffers.SnapshotBuffer.prototype.serverTimeMs = function() {
  * @param {flatbuffers.Builder} builder
  */
 buffers.SnapshotBuffer.startSnapshotBuffer = function(builder) {
-  builder.startObject(3);
+  builder.startObject(5);
 };
 
 /**
@@ -883,10 +994,47 @@ buffers.SnapshotBuffer.addPlayer = function(builder, playerOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} leaderboardOffset
+ */
+buffers.SnapshotBuffer.addLeaderboard = function(builder, leaderboardOffset) {
+  builder.addFieldOffset(2, leaderboardOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+buffers.SnapshotBuffer.createLeaderboardVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+buffers.SnapshotBuffer.startLeaderboardVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} myInfoOffset
+ */
+buffers.SnapshotBuffer.addMyInfo = function(builder, myInfoOffset) {
+  builder.addFieldOffset(3, myInfoOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Long} serverTimeMs
  */
 buffers.SnapshotBuffer.addServerTimeMs = function(builder, serverTimeMs) {
-  builder.addFieldInt64(2, serverTimeMs, builder.createLong(0, 0));
+  builder.addFieldInt64(4, serverTimeMs, builder.createLong(0, 0));
 };
 
 /**

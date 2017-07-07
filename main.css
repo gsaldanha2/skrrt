@@ -33,6 +33,18 @@ html, body {
     padding: 50px;
 }
 
+.leaderboard {
+    position: absolute;
+    display: none;
+    top: 0;
+    right: 0;
+    padding: 16px;
+    margin-top: 8px;
+    margin-right: 8px;
+    background-color: rgba(0, 0, 0, 0.3);
+    width: auto;
+}
+
 .titleLabel {
     display: block;
     color: #ffffff;

@@ -26,12 +26,12 @@ import FadeAnimation from './menufadeanimation'
 
     window.requestAnimationFrame(tick);
 
-    function updateCanvasSize () {
+    function updateCanvasSize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-    }
+        console.log('hi');
+    };
 
-    window.addEventListener('resize', updateCanvasSize, false);
     updateCanvasSize();
-
+    window.onresize = updateCanvasSize;
 })();

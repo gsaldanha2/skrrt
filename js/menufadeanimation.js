@@ -12,8 +12,6 @@ export default class FadeAnimation {
         this._tileSize = 100;
         this._tileImage = document.getElementById('tileImg');
 
-        this._canvas.width = window.innerWidth;
-        this._canvas.height = window.innerHeight;
         this._lastTime = Date.now();
 
         this.reset = (reversed) => {

@@ -56,7 +56,7 @@ export default class PlayState {
             this.game.updateEntities();
             if(this.game.player !== null) {
                 this.renderer.centerCameraOnPlayer(this.game.player);
-                this.renderer.render(this.game.entities, this.game.player);
+                this.renderer.render(this.game.entities, this.game.leaderboard, this.game.myInfo, this.game.player);
             }
         };
 

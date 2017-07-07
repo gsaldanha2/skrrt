@@ -89,6 +89,7 @@ export default class Game {
             if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].clientTimeMs >= this._interpData.renderTime) {
                 this._interpData.endUpdate = this._packetQueue.shift();
                 this._setupStartUpdateVelocities();
+                this.leaderboard = this._interpData.startUpdate.leaderboard;
             }
         };
 
@@ -138,8 +139,13 @@ export default class Game {
                 if(entity.id === playerid) packet.player = entity;
                 packet.entities.push(entity);
             }
+            packet.leaderboard = []
+            for(let i = 0; i < buffer.leaderboardLength(); i++) {
+                packet.leaderboard.push(buffer.leaderboard(i));
+            }
             packet.clientTimeMs = Date.now();
             packet.serverTimeMs = buffer.serverTimeMs().toFloat64();
+            packet.myInfo = buffer.myInfo();
             return packet;
         };
 
@@ -204,5 +210,9 @@ export default class Game {
 
         //setup input
         this._setupInput();
+    }
+
+    get myInfo() {
+        return this._interpData.startUpdate.myInfo;
     }
 }
