@@ -16,6 +16,14 @@ export default class Game {
             slow: false
         };
 
+        this._hammer = new Hammer.Manager(document.getElementById('canvas'));
+        this._hammer.add(new Hammer.Swipe());
+
+        this._hammer.on('swipeleft', () => this._handleKeyPress(37));
+        this._hammer.on('swiperight', () => this._handleKeyPress(39));
+        this._hammer.on('swipeup', () => this._handleKeyPress(38));
+        this._hammer.on('swipedown', () => this._handleKeyPress(40));
+
         this._turnmap = {
             //key = player rotation, val = [keyToTurnLeft, keyToTurnRight]
             0: [37, 39],
@@ -111,11 +119,9 @@ export default class Game {
             this._loadStartEndPackets();
 
             if (this._interpData.startUpdate === null) {
-                console.log('waiting for packets');
                 return;
             }
             if (this._interpData.endUpdate === null) {
-                console.log('extrapolate');
                 if(this._packetQueue.length > 0) this._preventPacketBackup();
                 // else {} //TODO extrapolate from startupdate
             } else {

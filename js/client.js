@@ -29,7 +29,6 @@ import FadeAnimation from './menufadeanimation'
     function updateCanvasSize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        console.log('hi');
     };
 
     updateCanvasSize();

@@ -12,11 +12,13 @@ const LARGE_BAR_HEIGHT = 16;
 
 const MINIMAP_SIZE = 128;
 const MINIMAP_PLAYER_SIZE = 4;
-const MINIMAP_CHUNK_SIZE = Math.floor(MINIMAP_SIZE / CHUNK_COUNT);
+const MINIMAP_CHUNK_SIZE = MINIMAP_SIZE / CHUNK_COUNT;
+
+const MAPSHEET_TILESIZE = 128;
 
 function negmod(n, x) {
     return ((n%x)+x)%x;
-};
+}
 
 export default class Renderer {
 
@@ -26,11 +28,8 @@ export default class Renderer {
         this._context = this._canvas.getContext('2d');
 
         this._imageStorage = {
-            'player1': document.getElementById('player1Img'),
-            'player2': document.getElementById('player2Img'),
-            'player3': document.getElementById('player3Img'),
-            'player4': document.getElementById('player4Img'),
-            'map': document.getElementById('mapImg'),
+            'playerSpritesheet': document.getElementById('playerSpritesheet'),
+            'mapSpritesheet': document.getElementById('mapSpritesheet'),
             'gascan': document.getElementById('gasCanImg'),
             'wreckage': document.getElementById('wreckageImg'),
             'launchpad': document.getElementById('launchpadImg'),
@@ -49,7 +48,7 @@ export default class Renderer {
             9: $("#9"),
             10: $("#10"),
             11: $("#11")
-        }
+        };
 
         this._camera = {
             x: 0,
@@ -62,7 +61,7 @@ export default class Renderer {
         this._imageForEntity = (entity) => {
             switch(entity.type) {
                 case buffers.EntityUnion.PlayerBuffer:
-                    return this._imageStorage['player' + entity.stats.level];
+                    return this._imageStorage['playerSpritesheet'];
                 case buffers.EntityUnion.GasCanBuffer:
                     return this._imageStorage['gascan'];
                 case buffers.EntityUnion.WreckageBuffer:
@@ -94,14 +93,14 @@ export default class Renderer {
             let x = player.x / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
             let y = player.y / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
             this._context.fillRect(x - MINIMAP_PLAYER_SIZE / 2, y - MINIMAP_PLAYER_SIZE / 2, MINIMAP_PLAYER_SIZE, MINIMAP_PLAYER_SIZE);
-        }
+        };
 
         this._renderMinimap = (entities, player) => {
             this._context.save();
             this._context.translate(8, 8);
             this._context.fillStyle = 'rgba(0,0,0,0.3)';
             this._context.fillRect(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
-            this._context.fillStyle = '#454545';
+            this._context.fillStyle = '#fff';
             for(let i = 0; i < CHUNK_COUNT; i++) {
                 for(let j = 0; j < CHUNK_COUNT; j++) {
                     let laneWidth = MINIMAP_CHUNK_SIZE * 0.25;
@@ -124,20 +123,36 @@ export default class Renderer {
             this._context.save();
             this._context.translate(entity.x - this._camera.x, entity.y - this._camera.y);
             this._context.rotate(-entity.rotation * Math.PI / 180);
-            this._context.drawImage(img, -16, -24);
 
             if(entity.type === buffers.EntityUnion.PlayerBuffer) {
+                this._context.drawImage(img,
+                    (entity.stats.level - 1) * 32, 0, 32, 48,
+                    -16, -24, 32, 48);
                 this._renderPlayerExtras(entity);
+            } else {
+                this._context.drawImage(img, -img.naturalWidth/2, -img.naturalHeight/2);
             }
             this._context.restore();
         };
 
-        this._renderMapTile = (x, y, rotation) => {
-            this._context.save();
-            this._context.translate(x + SECTION_SIZE * 1.5, y + SECTION_SIZE * 1.5);
-            this._context.rotate(rotation);
-            this._context.drawImage(this._imageStorage['map'], -SECTION_SIZE * 1.5, -SECTION_SIZE * 1.5, SECTION_SIZE * 3, SECTION_SIZE * 3);
-            this._context.restore();
+        this._renderMapChunk = (x, y, rotation) => {
+            for(let row = 0; row < 3; row++) {
+                for(let col = 0; col < 3; col++) {
+                    this._context.save();
+                    let img = this._imageStorage['mapSpritesheet'];
+                    if((row === 0 || row === 2) && (col === 0 || col === 2)) this._context.drawImage(img, 0, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, x + col * SECTION_SIZE, y + row * SECTION_SIZE, SECTION_SIZE, SECTION_SIZE);
+                    else if(row === 1 && col === 1) {
+                        this._context.translate(x + col * SECTION_SIZE + (SECTION_SIZE/2), y + row * SECTION_SIZE + (SECTION_SIZE/2));
+                        this._context.rotate(rotation);
+                        this._context.drawImage(img, MAPSHEET_TILESIZE * 2, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, -SECTION_SIZE/2, -SECTION_SIZE/2, SECTION_SIZE, SECTION_SIZE);
+                    } else {
+                        this._context.translate(x + col * SECTION_SIZE + (SECTION_SIZE/2), y + row * SECTION_SIZE + (SECTION_SIZE/2));
+                        if(row === 1) this._context.rotate(90 * Math.PI / 180);
+                        this._context.drawImage(img, MAPSHEET_TILESIZE, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, -SECTION_SIZE/2, -SECTION_SIZE/2, SECTION_SIZE, SECTION_SIZE);
+                    }
+                    this._context.restore();
+                }
+            }
         };
 
         this._renderHPBar = (playerEntity) => {
@@ -179,7 +194,7 @@ export default class Renderer {
                         this._drawOffmapTile(x, y);
                         continue;
                     }
-                    this._renderMapTile(x, y, -player.rotation * Math.PI / 180);
+                    this._renderMapChunk(x, y, -player.rotation * Math.PI / 180);
                 }
             }
         };
@@ -193,7 +208,7 @@ export default class Renderer {
         this._renderXPBar = (player) => {
             this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
             this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 32, this._camera.swidth() * 0.8, LARGE_BAR_HEIGHT);
-            this._context.fillStyle = 'rgb(66, 197, 244)'; //render xp in blue
+            this._context.fillStyle = 'rgb(26, 157, 204)'; //render xp in blue
             let filledLength = player.stats.xp / common.maxXPForLevel(player.stats.level);
             filledLength = Math.max(0, Math.min(filledLength, 1)) * this._camera.swidth() * 0.8;
             this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 32, filledLength, LARGE_BAR_HEIGHT);

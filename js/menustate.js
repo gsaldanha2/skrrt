@@ -19,7 +19,6 @@ export default class MenuState {
         this._playButton.click(() => {
             if(this._btnClicked === true) return;
             this._btnClicked = true;
-            console.log('clicked');
             $('#loginArea').slideUp();
             $('#leaderboard').slideDown();
             stateManager.state = new PlayState(stateManager, $('#nickInput').val()); //TODO wait for play state to connect before loading next state

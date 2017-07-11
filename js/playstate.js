@@ -30,7 +30,6 @@ export default class PlayState {
         };
 
         this._hasConnected = () => {
-            console.log(playerName);
             this.connection.send(this._createJoinPacket(this._playerName));
             this._inputIntervalId = setInterval(() => { //start sending input packets
                 this.connection.send(this.game.serializedInputPacket());
@@ -40,7 +39,6 @@ export default class PlayState {
         };
 
         this._hasDisconnected = () => {
-            console.log('disconnected');
             clearInterval(this._inputIntervalId);
             stateManager.animation = new FadeAnimation(1000, false);
             stateManager.animation.onFinished(() => stateManager.state = new MenuState(stateManager));

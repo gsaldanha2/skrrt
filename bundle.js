@@ -164,7 +164,6 @@ class MenuState {
         this._playButton.click(() => {
             if(this._btnClicked === true) return;
             this._btnClicked = true;
-            console.log('clicked');
             $('#loginArea').slideUp();
             $('#leaderboard').slideDown();
             stateManager.state = new __WEBPACK_IMPORTED_MODULE_1__playstate__["a" /* default */](stateManager, $('#nickInput').val()); //TODO wait for play state to connect before loading next state
@@ -227,7 +226,6 @@ class PlayState {
         };
 
         this._hasConnected = () => {
-            console.log(playerName);
             this.connection.send(this._createJoinPacket(this._playerName));
             this._inputIntervalId = setInterval(() => { //start sending input packets
                 this.connection.send(this.game.serializedInputPacket());
@@ -237,7 +235,6 @@ class PlayState {
         };
 
         this._hasDisconnected = () => {
-            console.log('disconnected');
             clearInterval(this._inputIntervalId);
             stateManager.animation = new __WEBPACK_IMPORTED_MODULE_4__menufadeanimation__["a" /* default */](1000, false);
             stateManager.animation.onFinished(() => stateManager.state = new __WEBPACK_IMPORTED_MODULE_3__menustate__["a" /* default */](stateManager));
@@ -304,7 +301,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     function updateCanvasSize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        console.log('hi');
     };
 
     updateCanvasSize();
@@ -395,6 +391,14 @@ class Game {
             laneChange: 0,
             slow: false
         };
+
+        this._hammer = new Hammer.Manager(document.getElementById('canvas'));
+        this._hammer.add(new Hammer.Swipe());
+
+        this._hammer.on('swipeleft', () => this._handleKeyPress(37));
+        this._hammer.on('swiperight', () => this._handleKeyPress(39));
+        this._hammer.on('swipeup', () => this._handleKeyPress(38));
+        this._hammer.on('swipedown', () => this._handleKeyPress(40));
 
         this._turnmap = {
             //key = player rotation, val = [keyToTurnLeft, keyToTurnRight]
@@ -491,11 +495,9 @@ class Game {
             this._loadStartEndPackets();
 
             if (this._interpData.startUpdate === null) {
-                console.log('waiting for packets');
                 return;
             }
             if (this._interpData.endUpdate === null) {
-                console.log('extrapolate');
                 if(this._packetQueue.length > 0) this._preventPacketBackup();
                 // else {} //TODO extrapolate from startupdate
             } else {
@@ -619,11 +621,13 @@ const LARGE_BAR_HEIGHT = 16;
 
 const MINIMAP_SIZE = 128;
 const MINIMAP_PLAYER_SIZE = 4;
-const MINIMAP_CHUNK_SIZE = Math.floor(MINIMAP_SIZE / CHUNK_COUNT);
+const MINIMAP_CHUNK_SIZE = MINIMAP_SIZE / CHUNK_COUNT;
+
+const MAPSHEET_TILESIZE = 128;
 
 function negmod(n, x) {
     return ((n%x)+x)%x;
-};
+}
 
 class Renderer {
 
@@ -633,11 +637,8 @@ class Renderer {
         this._context = this._canvas.getContext('2d');
 
         this._imageStorage = {
-            'player1': document.getElementById('player1Img'),
-            'player2': document.getElementById('player2Img'),
-            'player3': document.getElementById('player3Img'),
-            'player4': document.getElementById('player4Img'),
-            'map': document.getElementById('mapImg'),
+            'playerSpritesheet': document.getElementById('playerSpritesheet'),
+            'mapSpritesheet': document.getElementById('mapSpritesheet'),
             'gascan': document.getElementById('gasCanImg'),
             'wreckage': document.getElementById('wreckageImg'),
             'launchpad': document.getElementById('launchpadImg'),
@@ -656,7 +657,7 @@ class Renderer {
             9: $("#9"),
             10: $("#10"),
             11: $("#11")
-        }
+        };
 
         this._camera = {
             x: 0,
@@ -669,7 +670,7 @@ class Renderer {
         this._imageForEntity = (entity) => {
             switch(entity.type) {
                 case buffers.EntityUnion.PlayerBuffer:
-                    return this._imageStorage['player' + entity.stats.level];
+                    return this._imageStorage['playerSpritesheet'];
                 case buffers.EntityUnion.GasCanBuffer:
                     return this._imageStorage['gascan'];
                 case buffers.EntityUnion.WreckageBuffer:
@@ -701,14 +702,14 @@ class Renderer {
             let x = player.x / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
             let y = player.y / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
             this._context.fillRect(x - MINIMAP_PLAYER_SIZE / 2, y - MINIMAP_PLAYER_SIZE / 2, MINIMAP_PLAYER_SIZE, MINIMAP_PLAYER_SIZE);
-        }
+        };
 
         this._renderMinimap = (entities, player) => {
             this._context.save();
             this._context.translate(8, 8);
             this._context.fillStyle = 'rgba(0,0,0,0.3)';
             this._context.fillRect(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
-            this._context.fillStyle = '#454545';
+            this._context.fillStyle = '#fff';
             for(let i = 0; i < CHUNK_COUNT; i++) {
                 for(let j = 0; j < CHUNK_COUNT; j++) {
                     let laneWidth = MINIMAP_CHUNK_SIZE * 0.25;
@@ -731,20 +732,36 @@ class Renderer {
             this._context.save();
             this._context.translate(entity.x - this._camera.x, entity.y - this._camera.y);
             this._context.rotate(-entity.rotation * Math.PI / 180);
-            this._context.drawImage(img, -16, -24);
 
             if(entity.type === buffers.EntityUnion.PlayerBuffer) {
+                this._context.drawImage(img,
+                    (entity.stats.level - 1) * 32, 0, 32, 48,
+                    -16, -24, 32, 48);
                 this._renderPlayerExtras(entity);
+            } else {
+                this._context.drawImage(img, -img.naturalWidth/2, -img.naturalHeight/2);
             }
             this._context.restore();
         };
 
-        this._renderMapTile = (x, y, rotation) => {
-            this._context.save();
-            this._context.translate(x + SECTION_SIZE * 1.5, y + SECTION_SIZE * 1.5);
-            this._context.rotate(rotation);
-            this._context.drawImage(this._imageStorage['map'], -SECTION_SIZE * 1.5, -SECTION_SIZE * 1.5, SECTION_SIZE * 3, SECTION_SIZE * 3);
-            this._context.restore();
+        this._renderMapChunk = (x, y, rotation) => {
+            for(let row = 0; row < 3; row++) {
+                for(let col = 0; col < 3; col++) {
+                    this._context.save();
+                    let img = this._imageStorage['mapSpritesheet'];
+                    if((row === 0 || row === 2) && (col === 0 || col === 2)) this._context.drawImage(img, 0, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, x + col * SECTION_SIZE, y + row * SECTION_SIZE, SECTION_SIZE, SECTION_SIZE);
+                    else if(row === 1 && col === 1) {
+                        this._context.translate(x + col * SECTION_SIZE + (SECTION_SIZE/2), y + row * SECTION_SIZE + (SECTION_SIZE/2));
+                        this._context.rotate(rotation);
+                        this._context.drawImage(img, MAPSHEET_TILESIZE * 2, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, -SECTION_SIZE/2, -SECTION_SIZE/2, SECTION_SIZE, SECTION_SIZE);
+                    } else {
+                        this._context.translate(x + col * SECTION_SIZE + (SECTION_SIZE/2), y + row * SECTION_SIZE + (SECTION_SIZE/2));
+                        if(row === 1) this._context.rotate(90 * Math.PI / 180);
+                        this._context.drawImage(img, MAPSHEET_TILESIZE, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, -SECTION_SIZE/2, -SECTION_SIZE/2, SECTION_SIZE, SECTION_SIZE);
+                    }
+                    this._context.restore();
+                }
+            }
         };
 
         this._renderHPBar = (playerEntity) => {
@@ -786,7 +803,7 @@ class Renderer {
                         this._drawOffmapTile(x, y);
                         continue;
                     }
-                    this._renderMapTile(x, y, -player.rotation * Math.PI / 180);
+                    this._renderMapChunk(x, y, -player.rotation * Math.PI / 180);
                 }
             }
         };
@@ -800,7 +817,7 @@ class Renderer {
         this._renderXPBar = (player) => {
             this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
             this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 32, this._camera.swidth() * 0.8, LARGE_BAR_HEIGHT);
-            this._context.fillStyle = 'rgb(66, 197, 244)'; //render xp in blue
+            this._context.fillStyle = 'rgb(26, 157, 204)'; //render xp in blue
             let filledLength = player.stats.xp / __WEBPACK_IMPORTED_MODULE_0__common_js__["b" /* maxXPForLevel */](player.stats.level);
             filledLength = Math.max(0, Math.min(filledLength, 1)) * this._camera.swidth() * 0.8;
             this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 32, filledLength, LARGE_BAR_HEIGHT);
