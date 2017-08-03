@@ -1,28 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id"
+          content="252744835439-a3m7uf7ipjql5khmrg2varr10rnghf00.apps.googleusercontent.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?v=2" />
     <link rel="stylesheet" href="main.css">
     <meta charset="UTF-8">
-    <title>skrrt.io dev-only</title>
+    <title>skrrt.io</title>
 
     <img src="img/playerSpritesheet.png" style="display: none;" id="playerSpritesheet"/>
 
-    <img src="img/mapSpritesheet.png" style="display: none;" id="mapSpritesheet"/>
-    <img src="img/gascan.png" style="display: none;" id="gasCanImg"/>
+    <img src="img/gascan.png" style="display: none;" width="28" height="28" id="gasCanImg"/>
     <img src="img/wreckage.png" style="display: none;" id="wreckageImg"/>
     <img src="img/launchpad.png" style="display: none;" id="launchpadImg"/>
     <img src="img/waterTile.png" style="display: none;" id="waterImg"/>
     <img src="img/tile.png" style="display: none;" id="tileImg"/>
+    <img src="img/grass.png" style="display: none;" id="grass"/>
+    <img src="img/road.png" style="display: none;" id="road"/>
+    <img src="img/intersection.png" style="display: none;" id="intersection"/>
 
 </head>
 <body>
 
-<div class="menuArea">
-    <div class="loginArea" id="loginArea">
-        <label class="titleLabel">SKRRT.IO</label>
-        <label class="nickLabel">Your Name:</label>
-        <input placeholder="Nickname" class="nickInput" id="nickInput" maxlength="15">
-        <button class="playButton" id="playButton">PLAY</button>
+<div class="menuArea" id="menuArea">
+
+    <div id="menuWrapper" style="transform: translate(-50%, 0%) scale(1); -moz-transform: translate(-50%, 0%) scale(1);">
+
+        <div class="infoArea" id="infoArea">
+            <h2 style="width: 100%; text-align: center;">How To Play</h2>
+            <ul style="display: block; position:relative;">
+                <li>Consume gas cans to gain points</li>
+                <li>Shift lanes or turn at an intersection with the arrow keys or by swiping (mobile)</li>
+                <li>Slow down using spacebar or the slow button (mobile)</li>
+                <li>Hit cars with green tails to gain points</li>
+                <li>Avoid cars with red tails - they can destroy you</li>
+                <li>Blue tails are friendlies - you will bounce off them</li>
+                <li>Avoid wreckage when people die</li>
+                <li>Don't fall into the ocean!</li>
+            </ul>
+
+            <iframe class="facebook-like"
+                    src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fskrrt.io&width=106&layout=button_count&action=like&size=small&show_faces=true&share=true&height=46&appId"
+                    width="106" height="24" style="border:none;overflow:hidden" scrolling="no" frameborder="0"
+                    allowTransparency="true"></iframe>
+            <a href="https://twitter.com/share" class="twitter-share-button" data-text="Come play Skrrt.io with me!"
+               data-hashtags="skrrtio" data-show-count="false">Tweet</a>
+            <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+            <div class="g-signin2" id="googleSignIn" data-onsuccess="onSignIn" data-prompt="select_account" data-longtitle="true" data-width="190" data-height="40"></div>
+            <button class="g-signout" id="g-signout">Sign Out</button>
+            <button class="feedback" onclick="_urq.push(['Feedback_Open'])">Feedback/Bug</button>
+        </div>
+
+
+        <div class="loginArea" id="loginArea">
+            <div class="titleLabel">
+                <span style="color: #ffffff;display: inline-block;">SKRRT</span><span
+                    style="color:#cc0000;display: inline-block;">.IO</span>
+            </div>
+            <label class="nickLabel">Your Name:</label>
+            <input placeholder="Nickname" class="nickInput" id="nickInput" maxlength="15">
+
+            <div class="serverSelectWrapper">
+                <select id="serverSelect">
+                    <option value="US-CA">US-CA</option>
+                </select>
+                <input type="image" src="img/refresh.png" id="refreshBtn" />
+            </div>
+            <button class="playButton" id="playButton">PLAY</button>
+
+
+            <div class="alltime-leaderboard" id="alltime-leaderboard">
+                <label style="color:white;font-size:16px;margin-bottom: 4px">-- Leaderboard --</label>
+                <ul style="list-style-type:none;color:white;font-size:14px;padding:0;margin:0;">
+                    <li id="1p"></li>
+                    <li id="2p"></li>
+                    <li id="3p"></li>
+                    <li id="4p"></li>
+                    <li id="5p"></li>
+                    <li id="6p"></li>
+                    <li id="7p"></li>
+                    <li id="8p"></li>
+                    <li id="9p"></li>
+                    <li id="10p"></li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <div class="leaderboard" id="leaderboard">
@@ -42,6 +109,7 @@
     </div>
 </div>
 
+<button class="slowButton" id="slowButton">Slow</button>
 <canvas id="canvas"><p>Your browser does not support HTML5!</p></canvas>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -49,7 +117,37 @@
 <script type="text/javascript" src="buffers/flatbuffers.js"></script>
 <script type="text/javascript" src="buffers/InputPacketBuffer_generated.js"></script>
 <script type="text/javascript" src="buffers/SnapshotBuffer_generated.js"></script>
-<script type="text/javascript" src="bundle.js"></script>
 
+<script type="text/javascript">
+    var googleUser = undefined;
+
+    function onSignIn(user) {
+        googleUser = user;
+        document.getElementById('googleSignIn').style.display = 'none';
+        document.getElementById('g-signout').style.display = 'block';
+    }
+
+    $("#g-signout").click(function onSignOut() {
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            googleUser = undefined;
+            document.getElementById('googleSignIn').style.display = 'block';
+            document.getElementById('g-signout').style.display = 'none';
+        });
+    });
+</script>
+
+<script type="text/javascript" src="bundle.js"></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script type="text/javascript">
+    window._urq = window._urq || [];
+    _urq.push(['initSite', '5323a913-970f-4f83-906b-5951e7dd6014']);
+    (function() {
+        var ur = document.createElement('script'); ur.type = 'text/javascript'; ur.async = true;
+        ur.src = ('https:' == document.location.protocol ? 'https://cdn.userreport.com/userreport.js' : 'http://cdn.userreport.com/userreport.js');
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ur, s);
+    })();
+</script>
 </body>
 </html>

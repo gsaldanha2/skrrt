@@ -7,6 +7,7 @@ export default class Connection {
     constructor(serverURL) {
 
         this._socket = null;
+        this.alias = '';
 
         this.start = () => {
             this._socket = new WebSocket(serverURL);
@@ -28,8 +29,17 @@ export default class Connection {
         this.send = (data) => {
             // if(this._socket.readyState === this._socket.CLOSED) return;
             this._socket.send(data);
-        }
+        };
+
+        this.close = () => {
+            this._socket.close();
+        };
 
     }
+
+    get readyState() {
+        return this._socket.readyState;
+    }
+
 
 }

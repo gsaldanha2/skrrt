@@ -4,7 +4,7 @@
 
 export default class FadeAnimation {
 
-    constructor(duration, reversed) {
+    constructor(camera, duration, reversed) {
         this._canvas = document.getElementById('canvas');
         this._context = this._canvas.getContext('2d');
         this._duration = duration;
@@ -13,6 +13,7 @@ export default class FadeAnimation {
         this._tileImage = document.getElementById('tileImg');
 
         this._lastTime = Date.now();
+
 
         this.reset = (reversed) => {
             if(reversed) {
@@ -35,14 +36,14 @@ export default class FadeAnimation {
             if(this.isFinished()) return;
             this._updateTime();
             if(this.isFinished() && this._callback) this._callback();
-            for(let row = 0; row < Math.floor(this._canvas.width / this._tileSize) + 1; row++) {
-                for (let col = 0; col < Math.floor(this._canvas.height / this._tileSize) + 1; col++) {
+            for(let row = 0; row < Math.floor(camera.swidth() / this._tileSize) + 1; row++) {
+                for (let col = 0; col < Math.floor(camera.sheight() / this._tileSize) + 1; col++) {
                     if((row % 2 === 0 && col % 2 === 0) || (row % 2 === 1 && col % 2 === 1)) {
                         this._context.globalAlpha = Math.max(Math.min(this._elapsedTime / this._duration, 1), 0);
                     } else {
                         this._context.globalAlpha = Math.max(Math.min((this._elapsedTime - this._duration / 3) / (this._duration / 3), 1), 0);
                     }
-                    this._context.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize, this._tileSize);
+                    this._context.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize+1, this._tileSize+1);
                 }
             }
             this._context.globalAlpha = 1;

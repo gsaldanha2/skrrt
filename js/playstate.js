@@ -11,15 +11,17 @@ export default class PlayState {
 
     constructor(stateManager, playerName) {
         this.game = new Game();
-        this.renderer = new Renderer();
-        this.connection = new Connection('ws://localhost:4000');
+        this.renderer = new Renderer(stateManager.camera);
         this._playerName = playerName;
 
         this._createJoinPacket = (name) => {
             let builder = new flatbuffers.Builder(128);
             let nameOff = builder.createString(name);
+            let tokenOff = builder.createString(googleUser !== undefined ? googleUser.getAuthResponse().id_token : "");
+
             buffers.JoinDataBuffer.startJoinDataBuffer(builder);
             buffers.JoinDataBuffer.addName(builder, nameOff);
+            buffers.JoinDataBuffer.addGoogleToken(builder, tokenOff);
             let joinBuf = buffers.JoinDataBuffer.endJoinDataBuffer(builder);
 
             buffers.MessageBuffer.startMessageBuffer(builder);
@@ -29,25 +31,35 @@ export default class PlayState {
             return builder.asUint8Array();
         };
 
-        this._hasConnected = () => {
-            this.connection.send(this._createJoinPacket(this._playerName));
-            this._inputIntervalId = setInterval(() => { //start sending input packets
-                this.connection.send(this.game.serializedInputPacket());
-                this.game.resetInputPacket();
-            }, 1000/20);
-            this.connection.setDisconnectionCallback(this._hasDisconnected);
+        this._handleRecieveMsg = (msg) => {
+            let bytes = new Uint8Array(msg.data);
+            let buf = new flatbuffers.ByteBuffer(bytes);
+            let msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
+            if(msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) this.game.handleRecieveSnapshot(msgBuf);
+            else if(msgBuf.messageType() === buffers.MessageUnion.DeathBuffer) this._onDeath();
         };
 
-        this._hasDisconnected = () => {
+        this._onDeath = () => {
             clearInterval(this._inputIntervalId);
-            stateManager.animation = new FadeAnimation(1000, false);
+            this.game.cleanup();
+
+            //clear callbacks
+            stateManager.connection.setConnectionCallback(() => {});
+            stateManager.connection.setMessageCallback(() => {});
+            stateManager.connection.setDisconnectionCallback(() => {});
+
+            stateManager.animation = new FadeAnimation(stateManager.camera, 2000, false);
             stateManager.animation.onFinished(() => stateManager.state = new MenuState(stateManager));
         };
 
         this._setup = () => {
-            this.connection.start();
-            this.connection.setConnectionCallback(this._hasConnected);
-            this.connection.setMessageCallback(this.game.handleRecieveMsg);
+            stateManager.connection.send(this._createJoinPacket(this._playerName));
+            this._inputIntervalId = setInterval(() => { //start sending input packets
+                stateManager.connection.send(this.game.serializedInputPacket());
+                this.game.resetInputPacket();
+            }, 1000/20);
+            stateManager.connection.setDisconnectionCallback(() => alert('Uh oh! Disconnected from Server!'));
+            stateManager.connection.setMessageCallback(this._handleRecieveMsg);
         };
 
         this.update = () => {

@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,235 +60,544 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
  * Created by Gregory on 6/24/17.
  */
 
-class FadeAnimation {
+var FadeAnimation = function FadeAnimation(camera, duration, reversed) {
+    var _this = this;
 
-    constructor(duration, reversed) {
-        this._canvas = document.getElementById('canvas');
-        this._context = this._canvas.getContext('2d');
-        this._duration = duration;
-        this._elapsedTime = 0;
-        this._tileSize = 100;
-        this._tileImage = document.getElementById('tileImg');
+    _classCallCheck(this, FadeAnimation);
 
-        this._lastTime = Date.now();
+    this._canvas = document.getElementById('canvas');
+    this._context = this._canvas.getContext('2d');
+    this._duration = duration;
+    this._elapsedTime = 0;
+    this._tileSize = 100;
+    this._tileImage = document.getElementById('tileImg');
 
-        this.reset = (reversed) => {
-            if(reversed) {
-                this._reversed = true;
-                this._elapsedTime = this._duration;
-            } else {
-                this._reversed = false;
-                this._elapsedTime = 0;
-            }
-        };
+    this._lastTime = Date.now();
 
-        this._updateTime = () => {
-            let currTime = Date.now();
-            if(this._reversed === false) this._elapsedTime += currTime - this._lastTime;
-            else this._elapsedTime -= currTime - this._lastTime;
-            this._lastTime = currTime;
-        };
+    this.reset = function (reversed) {
+        if (reversed) {
+            _this._reversed = true;
+            _this._elapsedTime = _this._duration;
+        } else {
+            _this._reversed = false;
+            _this._elapsedTime = 0;
+        }
+    };
 
-        this.update = () => {
-            if(this.isFinished()) return;
-            this._updateTime();
-            if(this.isFinished() && this._callback) this._callback();
-            for(let row = 0; row < Math.floor(this._canvas.width / this._tileSize) + 1; row++) {
-                for (let col = 0; col < Math.floor(this._canvas.height / this._tileSize) + 1; col++) {
-                    if((row % 2 === 0 && col % 2 === 0) || (row % 2 === 1 && col % 2 === 1)) {
-                        this._context.globalAlpha = Math.max(Math.min(this._elapsedTime / this._duration, 1), 0);
-                    } else {
-                        this._context.globalAlpha = Math.max(Math.min((this._elapsedTime - this._duration / 3) / (this._duration / 3), 1), 0);
-                    }
-                    this._context.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize, this._tileSize);
+    this._updateTime = function () {
+        var currTime = Date.now();
+        if (_this._reversed === false) _this._elapsedTime += currTime - _this._lastTime;else _this._elapsedTime -= currTime - _this._lastTime;
+        _this._lastTime = currTime;
+    };
+
+    this.update = function () {
+        if (_this.isFinished()) return;
+        _this._updateTime();
+        if (_this.isFinished() && _this._callback) _this._callback();
+        for (var row = 0; row < Math.floor(camera.swidth() / _this._tileSize) + 1; row++) {
+            for (var col = 0; col < Math.floor(camera.sheight() / _this._tileSize) + 1; col++) {
+                if (row % 2 === 0 && col % 2 === 0 || row % 2 === 1 && col % 2 === 1) {
+                    _this._context.globalAlpha = Math.max(Math.min(_this._elapsedTime / _this._duration, 1), 0);
+                } else {
+                    _this._context.globalAlpha = Math.max(Math.min((_this._elapsedTime - _this._duration / 3) / (_this._duration / 3), 1), 0);
                 }
+                _this._context.drawImage(_this._tileImage, row * _this._tileSize, col * _this._tileSize, _this._tileSize + 1, _this._tileSize + 1);
             }
-            this._context.globalAlpha = 1;
-        };
+        }
+        _this._context.globalAlpha = 1;
+    };
 
-        this.isFinished = () => {
-            return this._elapsedTime >= this._duration;
-        };
+    this.isFinished = function () {
+        return _this._elapsedTime >= _this._duration;
+    };
 
-        this.onFinished = (callback) => {
-            this._callback = callback;
-        };
+    this.onFinished = function (callback) {
+        _this._callback = callback;
+    };
 
-        this.reset(reversed);
-    }
+    this.reset(reversed);
+};
 
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = FadeAnimation;
-
+exports.default = FadeAnimation;
 
 /***/ }),
 /* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__menufadeanimation__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__playstate__ = __webpack_require__(2);
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-class MenuState {
+var _connection = __webpack_require__(2);
 
-    constructor(stateManager) {
+var _connection2 = _interopRequireDefault(_connection);
 
-        this._canvas = document.getElementById('canvas');
-        this._context = this._canvas.getContext('2d');
-        this._tileImage = document.getElementById('tileImg');
-        this._scale = 1;
-        this._tileSize = 100;
-        this._playButton = $('#playButton');
+var _game = __webpack_require__(6);
 
-        $('#loginArea').slideDown(1000);
-        $('#leaderboard').slideUp();
-        this._btnClicked = false;
+var _game2 = _interopRequireDefault(_game);
 
-        this._playButton.click(() => {
-            if(this._btnClicked === true) return;
-            this._btnClicked = true;
-            $('#loginArea').slideUp();
-            $('#leaderboard').slideDown();
-            stateManager.state = new __WEBPACK_IMPORTED_MODULE_1__playstate__["a" /* default */](stateManager, $('#nickInput').val()); //TODO wait for play state to connect before loading next state
-            stateManager.animation = new __WEBPACK_IMPORTED_MODULE_0__menufadeanimation__["a" /* default */](1000, true);
+var _render = __webpack_require__(7);
+
+var _render2 = _interopRequireDefault(_render);
+
+var _menustate = __webpack_require__(4);
+
+var _menustate2 = _interopRequireDefault(_menustate);
+
+var _menufadeanimation = __webpack_require__(0);
+
+var _menufadeanimation2 = _interopRequireDefault(_menufadeanimation);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /**
+                                                                                                                                                           * Created by Gregory on 6/24/17.
+                                                                                                                                                           */
+
+
+var PlayState = function PlayState(stateManager, playerName) {
+    var _this = this;
+
+    _classCallCheck(this, PlayState);
+
+    this.game = new _game2.default();
+    this.renderer = new _render2.default(stateManager.camera);
+    this._playerName = playerName;
+
+    this._createJoinPacket = function (name) {
+        var builder = new flatbuffers.Builder(128);
+        var nameOff = builder.createString(name);
+        var tokenOff = builder.createString(googleUser !== undefined ? googleUser.getAuthResponse().id_token : "");
+
+        buffers.JoinDataBuffer.startJoinDataBuffer(builder);
+        buffers.JoinDataBuffer.addName(builder, nameOff);
+        buffers.JoinDataBuffer.addGoogleToken(builder, tokenOff);
+        var joinBuf = buffers.JoinDataBuffer.endJoinDataBuffer(builder);
+
+        buffers.MessageBuffer.startMessageBuffer(builder);
+        buffers.MessageBuffer.addMessageType(builder, buffers.MessageUnion.JoinDataBuffer);
+        buffers.MessageBuffer.addMessage(builder, joinBuf);
+        builder.finish(buffers.MessageBuffer.endMessageBuffer(builder));
+        return builder.asUint8Array();
+    };
+
+    this._handleRecieveMsg = function (msg) {
+        var bytes = new Uint8Array(msg.data);
+        var buf = new flatbuffers.ByteBuffer(bytes);
+        var msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
+        if (msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) _this.game.handleRecieveSnapshot(msgBuf);else if (msgBuf.messageType() === buffers.MessageUnion.DeathBuffer) _this._onDeath();
+    };
+
+    this._onDeath = function () {
+        clearInterval(_this._inputIntervalId);
+        _this.game.cleanup();
+
+        //clear callbacks
+        stateManager.connection.setConnectionCallback(function () {});
+        stateManager.connection.setMessageCallback(function () {});
+        stateManager.connection.setDisconnectionCallback(function () {});
+
+        stateManager.animation = new _menufadeanimation2.default(stateManager.camera, 2000, false);
+        stateManager.animation.onFinished(function () {
+            return stateManager.state = new _menustate2.default(stateManager);
         });
+    };
 
-        this.update = () => {
-            for(let row = 0; row < Math.floor(this._canvas.width / this._tileSize) + 1; row++) {
-                for (let col = 0; col < Math.floor(this._canvas.height / this._tileSize) + 1; col++) {
-                    this._context.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize, this._tileSize);
-                }
-            }
-        };
+    this._setup = function () {
+        stateManager.connection.send(_this._createJoinPacket(_this._playerName));
+        _this._inputIntervalId = setInterval(function () {
+            //start sending input packets
+            stateManager.connection.send(_this.game.serializedInputPacket());
+            _this.game.resetInputPacket();
+        }, 1000 / 20);
+        stateManager.connection.setDisconnectionCallback(function () {
+            return alert('Uh oh! Disconnected from Server!');
+        });
+        stateManager.connection.setMessageCallback(_this._handleRecieveMsg);
+    };
 
-    }
+    this.update = function () {
+        _this.game.updateEntities();
+        if (_this.game.player !== null) {
+            _this.renderer.centerCameraOnPlayer(_this.game.player);
+            _this.renderer.render(_this.game.entities, _this.game.leaderboard, _this.game.myInfo, _this.game.player);
+        }
+    };
 
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = MenuState;
+    this._setup();
+};
 
+exports.default = PlayState;
 
 /***/ }),
 /* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__connection__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__game__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__render__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__menustate__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__menufadeanimation__ = __webpack_require__(0);
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
- * Created by Gregory on 6/24/17.
+ * Created by Gregory on 6/12/17.
  */
 
+var Connection = function () {
+    function Connection(serverURL) {
+        var _this = this;
 
+        _classCallCheck(this, Connection);
 
+        this._socket = null;
+        this.alias = '';
 
-
-
-class PlayState {
-
-    constructor(stateManager, playerName) {
-        this.game = new __WEBPACK_IMPORTED_MODULE_1__game__["a" /* default */]();
-        this.renderer = new __WEBPACK_IMPORTED_MODULE_2__render__["a" /* default */]();
-        this.connection = new __WEBPACK_IMPORTED_MODULE_0__connection__["a" /* default */]('ws://localhost:4000');
-        this._playerName = playerName;
-
-        this._createJoinPacket = (name) => {
-            let builder = new flatbuffers.Builder(128);
-            let nameOff = builder.createString(name);
-            buffers.JoinDataBuffer.startJoinDataBuffer(builder);
-            buffers.JoinDataBuffer.addName(builder, nameOff);
-            let joinBuf = buffers.JoinDataBuffer.endJoinDataBuffer(builder);
-
-            buffers.MessageBuffer.startMessageBuffer(builder);
-            buffers.MessageBuffer.addMessageType(builder, buffers.MessageUnion.JoinDataBuffer);
-            buffers.MessageBuffer.addMessage(builder, joinBuf);
-            builder.finish(buffers.MessageBuffer.endMessageBuffer(builder));
-            return builder.asUint8Array();
+        this.start = function () {
+            _this._socket = new WebSocket(serverURL);
+            _this._socket.binaryType = "arraybuffer";
         };
 
-        this._hasConnected = () => {
-            this.connection.send(this._createJoinPacket(this._playerName));
-            this._inputIntervalId = setInterval(() => { //start sending input packets
-                this.connection.send(this.game.serializedInputPacket());
-                this.game.resetInputPacket();
-            }, 1000/20);
-            this.connection.setDisconnectionCallback(this._hasDisconnected);
+        this.setConnectionCallback = function (callback) {
+            _this._socket.onopen = callback;
         };
 
-        this._hasDisconnected = () => {
-            clearInterval(this._inputIntervalId);
-            stateManager.animation = new __WEBPACK_IMPORTED_MODULE_4__menufadeanimation__["a" /* default */](1000, false);
-            stateManager.animation.onFinished(() => stateManager.state = new __WEBPACK_IMPORTED_MODULE_3__menustate__["a" /* default */](stateManager));
+        this.setMessageCallback = function (callback) {
+            _this._socket.onmessage = callback;
         };
 
-        this._setup = () => {
-            this.connection.start();
-            this.connection.setConnectionCallback(this._hasConnected);
-            this.connection.setMessageCallback(this.game.handleRecieveMsg);
+        this.setDisconnectionCallback = function (callback) {
+            _this._socket.onclose = callback;
         };
 
-        this.update = () => {
-            this.game.updateEntities();
-            if(this.game.player !== null) {
-                this.renderer.centerCameraOnPlayer(this.game.player);
-                this.renderer.render(this.game.entities, this.game.leaderboard, this.game.myInfo, this.game.player);
-            }
+        this.send = function (data) {
+            // if(this._socket.readyState === this._socket.CLOSED) return;
+            _this._socket.send(data);
         };
 
-        this._setup();
+        this.close = function () {
+            _this._socket.close();
+        };
     }
 
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = PlayState;
+    _createClass(Connection, [{
+        key: "readyState",
+        get: function get() {
+            return this._socket.readyState;
+        }
+    }]);
 
+    return Connection;
+}();
+
+exports.default = Connection;
 
 /***/ }),
 /* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__playstate__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__menustate__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__menufadeanimation__ = __webpack_require__(0);
 
 
+(function (root) {
+  'use strict';
+
+  function NumberAbbreviate() {
+    var units;
+    if (!(this instanceof NumberAbbreviate)) {
+      // function usage: abbrev(n, decPlaces, units)
+      var n = arguments[0];
+      var decPlaces = arguments[1];
+      units = arguments[2];
+      var ab = new NumberAbbreviate(units);
+      return ab.abbreviate(n, decPlaces);
+    }
+    // class usage: new NumberAbbreviate(units)
+    units = arguments[0];
+    this.units = units == null ? ['k', 'm', 'b', 't'] : units;
+  }
+
+  NumberAbbreviate.prototype._abbreviate = function (number, decPlaces) {
+    decPlaces = Math.pow(10, decPlaces);
+
+    for (var i = this.units.length - 1; i >= 0; i--) {
+
+      var size = Math.pow(10, (i + 1) * 3);
+
+      if (size <= number) {
+        number = Math.round(number * decPlaces / size) / decPlaces;
+
+        if (number === 1000 && i < this.units.length - 1) {
+          number = 1;
+          i++;
+        }
+
+        number += this.units[i];
+
+        break;
+      }
+    }
+
+    return number;
+  };
+
+  NumberAbbreviate.prototype.abbreviate = function (number, decPlaces) {
+    var isNegative = number < 0;
+    var abbreviatedNumber = this._abbreviate(Math.abs(number), decPlaces || 0);
+
+    return isNegative ? '-' + abbreviatedNumber : abbreviatedNumber;
+  };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = NumberAbbreviate;
+  } else {
+    root.NumberAbbreviate = NumberAbbreviate;
+  }
+})(undefined);
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 
-(function() {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-    let canvas = document.getElementById('canvas');
-    let context = canvas.getContext('2d');
+var _menufadeanimation = __webpack_require__(0);
 
-    let stateManager = {
-        state: null,
-        animation: null
+var _menufadeanimation2 = _interopRequireDefault(_menufadeanimation);
+
+var _playstate = __webpack_require__(1);
+
+var _playstate2 = _interopRequireDefault(_playstate);
+
+var _numberAbbreviate = __webpack_require__(3);
+
+var _numberAbbreviate2 = _interopRequireDefault(_numberAbbreviate);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var numAbbr = new _numberAbbreviate2.default();
+
+var MenuState = function MenuState(stateManager) {
+    var _this = this;
+
+    _classCallCheck(this, MenuState);
+
+    this._canvas = document.getElementById('canvas');
+    this._context = this._canvas.getContext('2d');
+    this._tileImage = document.getElementById('tileImg');
+    this._tileSize = 100;
+    this._playButton = $('#playButton');
+    this._serverSelect = $('#serverSelect');
+
+    this._nickInput = $('#nickInput');
+
+    this._servers = {
+        'US-CA': 'wss://skrrtio-server.herokuapp.com/'
     };
-    stateManager.animation = new __WEBPACK_IMPORTED_MODULE_2__menufadeanimation__["a" /* default */](1000, false);
-    stateManager.animation.onFinished(() => stateManager.state = new __WEBPACK_IMPORTED_MODULE_1__menustate__["a" /* default */](stateManager));
+
+    this._leaderboardList = {
+        1: $("#1p"),
+        2: $("#2p"),
+        3: $("#3p"),
+        4: $("#4p"),
+        5: $("#5p"),
+        6: $("#6p"),
+        7: $("#7p"),
+        8: $("#8p"),
+        9: $("#9p"),
+        10: $("#10p")
+    };
+
+    $('#loginArea').slideDown(1000);
+    $('#infoArea').slideDown(1000);
+    $('#leaderboard').slideUp();
+    $('#slowButton').slideUp();
+    this._btnClicked = false;
+
+    this._connectToSelected = function () {
+        stateManager.connect(_this._servers[_this._serverSelect.val()]);
+        stateManager.connection.alias = _this._serverSelect.val();
+        console.log(stateManager.connection.alias);
+    };
+
+    this._serverSelect.change(this._connectToSelected);
+    $('#refreshBtn').on('click', this._connectToSelected);
+    if (!stateManager.connection) this._connectToSelected();
+
+    setTimeout(function () {
+        return _this._nickInput.focus();
+    }, 1000); // to prevent that wierd backup problem with sliding jquery panels
+    this._nickInput.on('keypress', function (e) {
+        if (e.keyCode === 13) _this._playButton.click();
+    });
+
+    this._playButton.click(function () {
+        if (_this._btnClicked === true) return;
+        if (stateManager.connection.readyState !== 1) {
+            alert('Hmmm... could not connect to server - try a different one.');
+            return;
+        }
+        _this._btnClicked = true;
+
+        $('#loginArea').slideUp();
+        $('#infoArea').slideUp();
+        $('#leaderboard').slideDown();
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            $('#slowButton').slideDown();
+        }
+        stateManager.state = new _playstate2.default(stateManager, _this._nickInput.val());
+        stateManager.animation = new _menufadeanimation2.default(stateManager.camera, 1000, true);
+    });
+
+    this._handleRecieveMsg = function (msg) {
+        var bytes = new Uint8Array(msg.data);
+        var buf = new flatbuffers.ByteBuffer(bytes);
+        var msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
+        if (msgBuf.messageType() === buffers.MessageUnion.ServerDataBuffer) {
+            var dataBuf = msgBuf.message(new buffers.ServerDataBuffer());
+            _this._updateLeaderboard(dataBuf);
+            _this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
+        }
+    };
+
+    this._updateLeaderboard = function (dataBuf) {
+        for (var i = 0; i < 10; i++) {
+            var p = dataBuf.players(i);
+            if (p === null || p.name() === "") {
+                _this._leaderboardList[i + 1].text(i + 1 + ": ");
+                continue;
+            }
+            _this._leaderboardList[p.rank() + 1].text(p.rank() + 1 + ": " + p.name() + " - " + numAbbr.abbreviate(p.score(), 2));
+        }
+    };
+
+    this.update = function () {
+        for (var row = 0; row < Math.floor(stateManager.camera.swidth() / _this._tileSize) + 1; row++) {
+            for (var col = 0; col < Math.floor(stateManager.camera.sheight() / _this._tileSize) + 1; col++) {
+                _this._context.drawImage(_this._tileImage, row * _this._tileSize, col * _this._tileSize, _this._tileSize + 1, _this._tileSize + 1);
+            }
+        }
+    };
+
+    this._hasConnected = function () {
+        var builder = new flatbuffers.Builder(128);
+
+        buffers.ServerDataBuffer.startServerDataBuffer(builder);
+        var buf = buffers.ServerDataBuffer.endServerDataBuffer(builder);
+
+        buffers.MessageBuffer.startMessageBuffer(builder);
+        buffers.MessageBuffer.addMessageType(builder, buffers.MessageUnion.ServerDataBuffer);
+        buffers.MessageBuffer.addMessage(builder, buf);
+        builder.finish(buffers.MessageBuffer.endMessageBuffer(builder));
+        stateManager.connection.send(builder.asUint8Array());
+    };
+
+    if (stateManager.connection.readyState === 1) this._hasConnected();else stateManager.connection.setConnectionCallback(this._hasConnected);
+    stateManager.connection.setMessageCallback(this._handleRecieveMsg);
+};
+
+exports.default = MenuState;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _playstate = __webpack_require__(1);
+
+var _playstate2 = _interopRequireDefault(_playstate);
+
+var _connection = __webpack_require__(2);
+
+var _connection2 = _interopRequireDefault(_connection);
+
+var _menustate = __webpack_require__(4);
+
+var _menustate2 = _interopRequireDefault(_menustate);
+
+var _menufadeanimation = __webpack_require__(0);
+
+var _menufadeanimation2 = _interopRequireDefault(_menufadeanimation);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var profile = undefined;
+
+window.onload = function () {
+
+    var canvas = document.getElementById('canvas');
+    var context = canvas.getContext('2d');
+    var menuScale = 1;
+    var menuWrapper = document.getElementById('menuWrapper');
+
+    var stateManager = {
+        state: null,
+        animation: null,
+        connection: null
+    };
+    stateManager.camera = {
+        x: 0,
+        y: 0
+    };
+    stateManager.camera.swidth = function () {
+        return canvas.width / stateManager.camera.scale;
+    };
+    stateManager.camera.sheight = function () {
+        return canvas.height / stateManager.camera.scale;
+    };
+
+    stateManager.connect = function (address) {
+        if (stateManager.connection) stateManager.connection.close();
+        stateManager.connection = new _connection2.default(address);
+        stateManager.connection.start();
+    };
+    stateManager.animation = new _menufadeanimation2.default(stateManager.camera, 1000, false);
+    stateManager.animation.onFinished(function () {
+        return stateManager.state = new _menustate2.default(stateManager);
+    });
 
     function tick() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         if (stateManager.state) stateManager.state.update();
-        if(stateManager.animation) {
+        if (stateManager.animation) {
             stateManager.animation.update();
-            if(stateManager.animation.isFinished()) stateManager.animation = null;
+            if (stateManager.animation.isFinished()) stateManager.animation = null;
         }
         window.requestAnimationFrame(tick);
     }
@@ -301,88 +607,59 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     function updateCanvasSize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-    };
+        context.imageSmoothingEnabled = false;
+
+        stateManager.camera.scale = Math.max(window.innerWidth * window.devicePixelRatio / 1680, window.innerHeight * window.devicePixelRatio / 945);
+        context.setTransform(stateManager.camera.scale, 0, 0, stateManager.camera.scale, 0, 0);
+
+        //scale menu
+        menuScale = Math.min(window.innerWidth / 940, window.innerHeight / 752);
+        scaleDiv(menuWrapper, menuScale);
+    }
+
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
+    function scaleDiv(d, scale) {
+        var s = 'translate(-50%, -0%) scale(' + scale + ')';
+        d.style.transform = s;
+        d.style['-o-transform'] = s;
+        d.style['-webkit-transform'] = s;
+        d.style['-moz-transform'] = s;
+        d.style['-ms-transform'] = s;
+    }
 
     updateCanvasSize();
     window.onresize = updateCanvasSize;
-})();
-
-/***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = maxHPForLevel;
-/* harmony export (immutable) */ __webpack_exports__["b"] = maxXPForLevel;
-/**
- * Created by Gregory on 6/19/17.
- */
-
-function maxHPForLevel(lvl) {
-    return 30 * lvl;
-}
-
-function maxXPForLevel(lvl) {
-    return (Math.pow(2, lvl) - Math.pow(2, lvl - 1)) * 150;
-}
-
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/**
- * Created by Gregory on 6/12/17.
- */
-
-class Connection {
-
-    constructor(serverURL) {
-
-        this._socket = null;
-
-        this.start = () => {
-            this._socket = new WebSocket(serverURL);
-            this._socket.binaryType = "arraybuffer";
-        };
-
-        this.setConnectionCallback = (callback) => {
-            this._socket.onopen = callback;
-        };
-
-        this.setMessageCallback = (callback) => {
-            this._socket.onmessage = callback;
-        };
-
-        this.setDisconnectionCallback = (callback) => {
-            this._socket.onclose = callback;
-        };
-
-        this.send = (data) => {
-            // if(this._socket.readyState === this._socket.CLOSED) return;
-            this._socket.send(data);
-        }
-
-    }
-
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Connection;
-
+};
 
 /***/ }),
 /* 6 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
  * Created by Gregory on 6/12/17.
  */
 
-const LERP_MS = 100;
+var LERP_MS = 100;
 
-class Game {
+var Game = function () {
+    function Game() {
+        var _this = this;
 
-    constructor() {
+        _classCallCheck(this, Game);
 
         this.entities = new Map();
         this.player = null;
@@ -392,13 +669,8 @@ class Game {
             slow: false
         };
 
-        this._hammer = new Hammer.Manager(document.getElementById('canvas'));
+        this._hammer = new Hammer.Manager(window);
         this._hammer.add(new Hammer.Swipe());
-
-        this._hammer.on('swipeleft', () => this._handleKeyPress(37));
-        this._hammer.on('swiperight', () => this._handleKeyPress(39));
-        this._hammer.on('swipeup', () => this._handleKeyPress(38));
-        this._hammer.on('swipedown', () => this._handleKeyPress(40));
 
         this._turnmap = {
             //key = player rotation, val = [keyToTurnLeft, keyToTurnRight]
@@ -407,31 +679,63 @@ class Game {
             180: [39, 37],
             270: [38, 40]
         };
+        this._slowButton = $('#slowButton');
 
-        this._setupInput = () => {
-            window.onkeydown = (e) => {
-                let key = e.keyCode ? e.keyCode : e.which;
-                this._handleKeyPress(key);
+        this._setupInputForMobile = function () {
+            _this._hammer.on('swipeleft', function (e) {
+                return _this._handleKeyPress(37);
+            });
+            _this._hammer.on('swiperight', function () {
+                return _this._handleKeyPress(39);
+            });
+            _this._hammer.on('swipeup', function () {
+                return _this._handleKeyPress(38);
+            });
+            _this._hammer.on('swipedown', function () {
+                return _this._handleKeyPress(40);
+            });
+
+            _this._slowButton.bind('touchstart', function () {
+                return _this._slowButton.trigger('mousedown');
+            }).bind('touchend', function () {
+                return _this._slowButton.trigger('mouseup');
+            }); //mobile support
+
+            _this._slowButton.mousedown(function () {
+                _this._inputPacket.slow = true;
+                return false;
+            });
+            $(document).mouseup(function () {
+                _this._inputPacket.slow = false;
+                return false;
+            });
+        };
+
+        this._setupInput = function () {
+            window.onkeydown = function (e) {
+                var key = e.keyCode ? e.keyCode : e.which;
+                _this._handleKeyPress(key);
             };
-            window.onkeyup = (e) => {
-                let key = e.keyCode ? e.keyCode : e.which;
-                if (key == 32) this._inputPacket.slow = false;
+            window.onkeyup = function (e) {
+                var key = e.keyCode ? e.keyCode : e.which;
+                if (key == 32) _this._inputPacket.slow = false;
             };
         };
 
-        this._handleKeyPress = (key) => {
-            if (this.player === null) return;
+        this._handleKeyPress = function (key) {
+            if (_this.player === null) return;
             switch (key) {
-                case this._turnmap[this.player.rotation][0]:
-                    this._inputPacket.laneChange = -1;
+                case _this._turnmap[_this.player.rotation][0]:
+                    _this._inputPacket.laneChange = -1;
                     break;
 
-                case this._turnmap[this.player.rotation][1]:
-                    this._inputPacket.laneChange = 1;
+                case _this._turnmap[_this.player.rotation][1]:
+                    _this._inputPacket.laneChange = 1;
                     break;
 
-                case 32: //spacebar
-                    this._inputPacket.slow = true;
+                case 32:
+                    //spacebar
+                    _this._inputPacket.slow = true;
                     break;
             }
         };
@@ -443,126 +747,200 @@ class Game {
             renderTime: Date.now() - LERP_MS
         };
 
-        this._preventPacketBackup = () => {
-            this._interpData.endUpdate = null;
-            this._packetQueue = [];
+        this._preventPacketBackup = function () {
+            _this._interpData.endUpdate = null;
+            _this._packetQueue = [];
         };
 
-        this._setupStartUpdateVelocities = () => {
-            this.entities.clear();
-            this.player = this._interpData.startUpdate.player;
-            for (let entity of this._interpData.startUpdate.entities) {
-                this.entities.set(entity.id, entity);
+        this._setupStartUpdateVelocities = function () {
+            _this.entities.clear();
+            _this.player = _this._interpData.startUpdate.player;
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = _this._interpData.startUpdate.entities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var entity = _step.value;
+
+                    _this.entities.set(entity.id, entity);
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
             }
-            for (let endEntity of this._interpData.endUpdate.entities) {
-                let entity = this.entities.get(endEntity.id);
-                if (entity === undefined) continue;
-                entity.dx = endEntity.x - entity.x;
-                entity.dy = endEntity.y - entity.y;
-                entity.startx = entity.x;
-                entity.starty = entity.y;
+
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = _this._interpData.endUpdate.entities[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var endEntity = _step2.value;
+
+                    var _entity = _this.entities.get(endEntity.id);
+                    if (_entity === undefined) continue;
+                    _entity.dx = endEntity.x - _entity.x;
+                    _entity.dy = endEntity.y - _entity.y;
+                    _entity.startx = _entity.x;
+                    _entity.starty = _entity.y;
+                    if (_entity.id === _this.player.id) {
+                        _entity.stats.gasLevelStart = _entity.stats.gasLevel;
+                        _entity.stats.gasLevelDelta = endEntity.stats.gasLevel - _entity.stats.gasLevel;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
             }
         };
 
-        this._loadStartEndPackets = () => {
-            this._interpData.renderTime = Date.now() - LERP_MS;
-            if(this._interpData.startUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].clientTimeMs <= this._interpData.renderTime) {
-                this._interpData.startUpdate = this._packetQueue.shift();
-                if(this._packetQueue[0].clientTimeMs <= this._interpData.renderTime) this._interpData.startUpdate = null; //maybe remove
+        this._loadStartEndPackets = function () {
+            _this._interpData.renderTime = Date.now() - LERP_MS;
+            if (_this._interpData.startUpdate === null && _this._packetQueue.length > 0 && _this._packetQueue[0].clientTimeMs <= _this._interpData.renderTime) {
+                _this._interpData.startUpdate = _this._packetQueue.shift();
+                if (_this._packetQueue[0].clientTimeMs <= _this._interpData.renderTime) _this._interpData.startUpdate = null; //maybe remove
             }
-            if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].clientTimeMs >= this._interpData.renderTime) {
-                this._interpData.endUpdate = this._packetQueue.shift();
-                this._setupStartUpdateVelocities();
-                this.leaderboard = this._interpData.startUpdate.leaderboard;
+            if (_this._interpData.startUpdate !== null && _this._interpData.endUpdate === null && _this._packetQueue.length > 0 && _this._packetQueue[0].clientTimeMs >= _this._interpData.renderTime) {
+                _this._interpData.endUpdate = _this._packetQueue.shift();
+                _this._setupStartUpdateVelocities();
+                _this.leaderboard = _this._interpData.startUpdate.leaderboard;
             }
         };
 
-        this._interpolate = () => {
-            let interpDuration = this._interpData.endUpdate.serverTimeMs - this._interpData.startUpdate.serverTimeMs;
-            let ratio = (this._interpData.renderTime - this._interpData.startUpdate.clientTimeMs) / interpDuration;
-            for (let entity of this.entities.values()) {
-                if(isNaN(entity.dx) || isNaN(entity.dy)) continue; //doesnt exist in endupdate
-                entity.x = entity.startx + entity.dx * ratio;
-                entity.y = entity.starty + entity.dy * ratio;
+        this._interpolate = function () {
+            var interpDuration = _this._interpData.endUpdate.serverTimeMs - _this._interpData.startUpdate.serverTimeMs;
+            var ratio = (_this._interpData.renderTime - _this._interpData.startUpdate.clientTimeMs) / interpDuration;
+            var _iteratorNormalCompletion3 = true;
+            var _didIteratorError3 = false;
+            var _iteratorError3 = undefined;
+
+            try {
+                for (var _iterator3 = _this.entities.values()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                    var entity = _step3.value;
+
+                    if (isNaN(entity.dx) || isNaN(entity.dy)) continue; //doesnt exist in endupdate
+                    entity.x = entity.startx + entity.dx * ratio;
+                    entity.y = entity.starty + entity.dy * ratio;
+                    if (entity.id === _this.player.id) {
+                        entity.stats.gasLevel = entity.stats.gasLevelStart + entity.stats.gasLevelDelta * ratio;
+                    }
+                }
+            } catch (err) {
+                _didIteratorError3 = true;
+                _iteratorError3 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                        _iterator3.return();
+                    }
+                } finally {
+                    if (_didIteratorError3) {
+                        throw _iteratorError3;
+                    }
+                }
             }
+
             if (ratio >= 1) {
-                this._interpData.startUpdate = this._interpData.endUpdate;
-                this._interpData.endUpdate = null;
+                _this._interpData.startUpdate = _this._interpData.endUpdate;
+                _this._interpData.endUpdate = null;
             }
         };
 
-        this.updateEntities = () => {
-            this._loadStartEndPackets();
+        this.updateEntities = function () {
+            _this._loadStartEndPackets();
 
-            if (this._interpData.startUpdate === null) {
+            if (_this._interpData.startUpdate === null) {
                 return;
             }
-            if (this._interpData.endUpdate === null) {
-                if(this._packetQueue.length > 0) this._preventPacketBackup();
+            if (_this._interpData.endUpdate === null) {
+                if (_this._packetQueue.length > 0) _this._preventPacketBackup();
                 // else {} //TODO extrapolate from startupdate
             } else {
-                this._interpolate();
+                _this._interpolate();
             }
         };
 
-        this.handleRecieveMsg = (msg) => {
-            let bytes = new Uint8Array(msg.data);
-            let buf = new flatbuffers.ByteBuffer(bytes);
-            let msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
-            if(msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) this._packetQueue.push(this._createPacketFromSnapshotBuffer(msgBuf.message(new buffers.SnapshotBuffer())));
+        this.cleanup = function () {
+            _this._hammer.destroy();
         };
 
-        this._createPacketFromSnapshotBuffer = (buffer) => {
-            let packet = {entities: []};
-            let playerid = buffer.player().id();
-            for (let i = 0; i < buffer.entitiesLength(); i++) {
-                let entity = this._createObjectFromBuffer(buffer.entities(i));
-                if(entity === null) continue;
-                if(entity.id === playerid) packet.player = entity;
+        this.handleRecieveSnapshot = function (msgBuf) {
+            _this._packetQueue.push(_this._createPacketFromSnapshotBuffer(msgBuf.message(new buffers.SnapshotBuffer())));
+        };
+
+        this._createPacketFromSnapshotBuffer = function (buffer) {
+            var packet = { entities: [] };
+            var playerid = buffer.player().id();
+            for (var i = 0; i < buffer.entitiesLength(); i++) {
+                var entity = _this._createObjectFromBuffer(buffer.entities(i));
+                if (entity === null) continue;
+                if (entity.id === playerid) packet.player = entity;
                 packet.entities.push(entity);
             }
-            packet.leaderboard = []
-            for(let i = 0; i < buffer.leaderboardLength(); i++) {
-                packet.leaderboard.push(buffer.leaderboard(i));
+            packet.leaderboard = [];
+            for (var _i = 0; _i < buffer.leaderboardLength(); _i++) {
+                packet.leaderboard.push(buffer.leaderboard(_i));
             }
+            packet.player.stats.gasLevel = buffer.gasLevel();
             packet.clientTimeMs = Date.now();
             packet.serverTimeMs = buffer.serverTimeMs().toFloat64();
             packet.myInfo = buffer.myInfo();
             return packet;
         };
 
-        this._createObjectFromBuffer = (entityBuffer) => {
-            let entity = null;
-            switch(entityBuffer.entityType()) {
+        this._createObjectFromBuffer = function (entityBuffer) {
+            var entity = null;
+            switch (entityBuffer.entityType()) {
                 case buffers.EntityUnion.PlayerBuffer:
-                    entity = this._createPlayerFromBuffer(entityBuffer.entity(new buffers.PlayerBuffer()));
+                    entity = _this._createPlayerFromBuffer(entityBuffer.entity(new buffers.PlayerBuffer()));
                     break;
                 case buffers.EntityUnion.GasCanBuffer:
-                    entity = this._createEntityFromBuffer(entityBuffer.entity(new buffers.GasCanBuffer()), buffers.EntityUnion.GasCanBuffer);
+                    entity = _this._createEntityFromBuffer(entityBuffer.entity(new buffers.GasCanBuffer()), buffers.EntityUnion.GasCanBuffer);
                     break;
                 case buffers.EntityUnion.WreckageBuffer:
-                    entity = this._createEntityFromBuffer(entityBuffer.entity(new buffers.WreckageBuffer()), buffers.EntityUnion.WreckageBuffer);
+                    entity = _this._createEntityFromBuffer(entityBuffer.entity(new buffers.WreckageBuffer()), buffers.EntityUnion.WreckageBuffer);
                     break;
                 case buffers.EntityUnion.LaunchpadBuffer:
-                    entity = this._createEntityFromBuffer(entityBuffer.entity(new buffers.LaunchpadBuffer()), buffers.EntityUnion.LaunchpadBuffer);
+                    entity = _this._createEntityFromBuffer(entityBuffer.entity(new buffers.LaunchpadBuffer()), buffers.EntityUnion.LaunchpadBuffer);
                     break;
             }
             return entity;
         };
 
-        this._createPlayerFromBuffer = (entityBuffer) => {
-            let player = this._createEntityFromBuffer(entityBuffer, buffers.EntityUnion.PlayerBuffer);
+        this._createPlayerFromBuffer = function (entityBuffer) {
+            var player = _this._createEntityFromBuffer(entityBuffer, buffers.EntityUnion.PlayerBuffer);
             player.stats = {
                 xp: entityBuffer.stats().xp(),
                 level: entityBuffer.stats().level(),
                 health: entityBuffer.stats().health(),
-                hurtFlag: entityBuffer.stats().hurtFlag(),
+                hurtFlag: entityBuffer.stats().hurtFlag()
             };
             player.name = entityBuffer.name();
             return player;
         };
 
-        this._createEntityFromBuffer = (buffer, type) => {
+        this._createEntityFromBuffer = function (buffer, type) {
             return {
                 x: buffer.position().x(),
                 y: buffer.position().y(),
@@ -572,12 +950,12 @@ class Game {
             };
         };
 
-        this.serializedInputPacket = () => {
-            let builder = new flatbuffers.Builder(128);
+        this.serializedInputPacket = function () {
+            var builder = new flatbuffers.Builder(128);
             buffers.InputPacketBuffer.startInputPacketBuffer(builder);
-            buffers.InputPacketBuffer.addLaneChange(builder, this._inputPacket.laneChange);
-            buffers.InputPacketBuffer.addSlow(builder, this._inputPacket.slow);
-            let packetOffset = buffers.InputPacketBuffer.endInputPacketBuffer(builder);
+            buffers.InputPacketBuffer.addLaneChange(builder, _this._inputPacket.laneChange);
+            buffers.InputPacketBuffer.addSlow(builder, _this._inputPacket.slow);
+            var packetOffset = buffers.InputPacketBuffer.endInputPacketBuffer(builder);
             buffers.MessageBuffer.startMessageBuffer(builder);
             buffers.MessageBuffer.addMessageType(builder, buffers.MessageUnion.InputPacketBuffer);
             buffers.MessageBuffer.addMessage(builder, packetOffset);
@@ -585,311 +963,463 @@ class Game {
             return builder.asUint8Array();
         };
 
-        this.resetInputPacket = () => {
-            this._inputPacket.laneChange = 0;
+        this.resetInputPacket = function () {
+            _this._inputPacket.laneChange = 0;
             //dont reset slow down
         };
 
         //setup input
         this._setupInput();
+
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            this._setupInputForMobile();
+        }
     }
 
-    get myInfo() {
-        return this._interpData.startUpdate.myInfo;
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = Game;
+    _createClass(Game, [{
+        key: 'myInfo',
+        get: function get() {
+            return this._interpData.startUpdate.myInfo;
+        }
+    }]);
 
+    return Game;
+}();
+
+exports.default = Game;
 
 /***/ }),
 /* 7 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common_js__ = __webpack_require__(4);
-/**
- * Created by Gregory on 6/12/17.
- */
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-const SECTION_SIZE = 256;
-const CHUNK_COUNT = 4;
-const HP_BAR_LEN = 50;
-const SMALL_HP_BAR_HEIGHT = 12;
-const LARGE_BAR_HEIGHT = 16;
+var _common = __webpack_require__(8);
 
-const MINIMAP_SIZE = 128;
-const MINIMAP_PLAYER_SIZE = 4;
-const MINIMAP_CHUNK_SIZE = MINIMAP_SIZE / CHUNK_COUNT;
+var common = _interopRequireWildcard(_common);
 
-const MAPSHEET_TILESIZE = 128;
+var _numberAbbreviate = __webpack_require__(3);
+
+var _numberAbbreviate2 = _interopRequireDefault(_numberAbbreviate);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } } /**
+                                                                                                                                                           * Created by Gregory on 6/12/17.
+                                                                                                                                                           */
+
+var SECTION_SIZE = 360;
+var CHUNK_COUNT = 8;
+var HP_BAR_LEN = 50;
+var SMALL_HP_BAR_HEIGHT = 12;
+var LARGE_BAR_HEIGHT = 16;
+
+var MINIMAP_SIZE = 150;
+var MINIMAP_PLAYER_SIZE = 6;
+var MINIMAP_CHUNK_SIZE = MINIMAP_SIZE / CHUNK_COUNT;
+
+var numAbbr = new _numberAbbreviate2.default();
 
 function negmod(n, x) {
-    return ((n%x)+x)%x;
+    return (n % x + x) % x;
 }
 
-class Renderer {
-
-    constructor() {
-
-        this._canvas = document.getElementById('canvas');
-        this._context = this._canvas.getContext('2d');
-
-        this._imageStorage = {
-            'playerSpritesheet': document.getElementById('playerSpritesheet'),
-            'mapSpritesheet': document.getElementById('mapSpritesheet'),
-            'gascan': document.getElementById('gasCanImg'),
-            'wreckage': document.getElementById('wreckageImg'),
-            'launchpad': document.getElementById('launchpadImg'),
-            'waterTile': document.getElementById('waterImg')
-        };
-
-        this._leaderboardList = {
-            1: $("#1"),
-            2: $("#2"),
-            3: $("#3"),
-            4: $("#4"),
-            5: $("#5"),
-            6: $("#6"),
-            7: $("#7"),
-            8: $("#8"),
-            9: $("#9"),
-            10: $("#10"),
-            11: $("#11")
-        };
-
-        this._camera = {
-            x: 0,
-            y: 0,
-            scale: 1
-        };
-        this._camera.swidth = () => { return this._canvas.width / this._camera.scale; };
-        this._camera.sheight = () => { return this._canvas.height / this._camera.scale; };
-
-        this._imageForEntity = (entity) => {
-            switch(entity.type) {
-                case buffers.EntityUnion.PlayerBuffer:
-                    return this._imageStorage['playerSpritesheet'];
-                case buffers.EntityUnion.GasCanBuffer:
-                    return this._imageStorage['gascan'];
-                case buffers.EntityUnion.WreckageBuffer:
-                    return this._imageStorage['wreckage'];
-                case buffers.EntityUnion.LaunchpadBuffer:
-                    return this._imageStorage['launchpad'];
-            }
-        };
-
-        this._renderPlayerName = (playerEntity) => {
-            this._context.font = '10px arial';
-            this._context.textAlign = 'center';
-            this._context.fillStyle = '#fff';
-            let yoffset = playerEntity.rotation === 180 || playerEntity.rotation === 0 ? 24 + 10 : 16 + 10;
-            this._context.fillText(playerEntity.name, 0, yoffset);
-        };
-
-        this._renderPlayerExtras = (playerEntity) => {
-            this._context.fillStyle = 'rgba(255, 0, 0, 0.3)';
-            if(playerEntity.stats.hurtFlag) this._context.fillRect(-16, -24, 32, 48);
-            //reverse rotation
-            this._context.rotate(playerEntity.rotation * Math.PI / 180);
-            //render name
-            if (playerEntity.stats.hurtFlag) this._renderHPBar(playerEntity);
-            this._renderPlayerName(playerEntity);
-        };
-
-        this._renderPlayerOnMinimap = (player) => {
-            let x = player.x / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
-            let y = player.y / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
-            this._context.fillRect(x - MINIMAP_PLAYER_SIZE / 2, y - MINIMAP_PLAYER_SIZE / 2, MINIMAP_PLAYER_SIZE, MINIMAP_PLAYER_SIZE);
-        };
-
-        this._renderMinimap = (entities, player) => {
-            this._context.save();
-            this._context.translate(8, 8);
-            this._context.fillStyle = 'rgba(0,0,0,0.3)';
-            this._context.fillRect(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
-            this._context.fillStyle = '#fff';
-            for(let i = 0; i < CHUNK_COUNT; i++) {
-                for(let j = 0; j < CHUNK_COUNT; j++) {
-                    let laneWidth = MINIMAP_CHUNK_SIZE * 0.25;
-                    this._context.fillRect(MINIMAP_CHUNK_SIZE * (i + 0.5) - laneWidth/2, MINIMAP_CHUNK_SIZE * j, laneWidth, MINIMAP_CHUNK_SIZE);
-                    this._context.fillRect(MINIMAP_CHUNK_SIZE * i, MINIMAP_CHUNK_SIZE * (j + 0.5) - laneWidth/2, MINIMAP_CHUNK_SIZE, laneWidth);
-                }
-            }
-            this._context.fillStyle = '#ef6767';
-            for(let entity of entities.values()) {
-                if(entity.type === buffers.EntityUnion.PlayerBuffer) this._renderPlayerOnMinimap(entity);
-            }
-            this._context.fillStyle = '#4e7ce8';
-            this._renderPlayerOnMinimap(player);
-            this._context.restore();
-        };
-
-
-        this._renderEntity = (entity) => {
-            let img = this._imageForEntity(entity);
-            this._context.save();
-            this._context.translate(entity.x - this._camera.x, entity.y - this._camera.y);
-            this._context.rotate(-entity.rotation * Math.PI / 180);
-
-            if(entity.type === buffers.EntityUnion.PlayerBuffer) {
-                this._context.drawImage(img,
-                    (entity.stats.level - 1) * 32, 0, 32, 48,
-                    -16, -24, 32, 48);
-                this._renderPlayerExtras(entity);
-            } else {
-                this._context.drawImage(img, -img.naturalWidth/2, -img.naturalHeight/2);
-            }
-            this._context.restore();
-        };
-
-        this._renderMapChunk = (x, y, rotation) => {
-            for(let row = 0; row < 3; row++) {
-                for(let col = 0; col < 3; col++) {
-                    this._context.save();
-                    let img = this._imageStorage['mapSpritesheet'];
-                    if((row === 0 || row === 2) && (col === 0 || col === 2)) this._context.drawImage(img, 0, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, x + col * SECTION_SIZE, y + row * SECTION_SIZE, SECTION_SIZE, SECTION_SIZE);
-                    else if(row === 1 && col === 1) {
-                        this._context.translate(x + col * SECTION_SIZE + (SECTION_SIZE/2), y + row * SECTION_SIZE + (SECTION_SIZE/2));
-                        this._context.rotate(rotation);
-                        this._context.drawImage(img, MAPSHEET_TILESIZE * 2, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, -SECTION_SIZE/2, -SECTION_SIZE/2, SECTION_SIZE, SECTION_SIZE);
-                    } else {
-                        this._context.translate(x + col * SECTION_SIZE + (SECTION_SIZE/2), y + row * SECTION_SIZE + (SECTION_SIZE/2));
-                        if(row === 1) this._context.rotate(90 * Math.PI / 180);
-                        this._context.drawImage(img, MAPSHEET_TILESIZE, 0, MAPSHEET_TILESIZE, MAPSHEET_TILESIZE, -SECTION_SIZE/2, -SECTION_SIZE/2, SECTION_SIZE, SECTION_SIZE);
-                    }
-                    this._context.restore();
-                }
-            }
-        };
-
-        this._renderHPBar = (playerEntity) => {
-            this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            let yoffset = playerEntity.rotation === 180 || playerEntity.rotation === 0 ? -24 - (SMALL_HP_BAR_HEIGHT + 1) : -16 - (SMALL_HP_BAR_HEIGHT + 1);
-            this._context.fillRect(-HP_BAR_LEN / 2, yoffset, HP_BAR_LEN, SMALL_HP_BAR_HEIGHT); //draw background bar
-            this._context.fillStyle = 'rgb(75, 244, 66)'; //render health in green
-            let filledLength = playerEntity.stats.health / __WEBPACK_IMPORTED_MODULE_0__common_js__["a" /* maxHPForLevel */](playerEntity.stats.level);
-            filledLength = Math.max(0, Math.min(filledLength, 1)) * HP_BAR_LEN;
-            this._context.fillRect(-HP_BAR_LEN / 2, yoffset, filledLength, SMALL_HP_BAR_HEIGHT);
-        };
-
-        this._drawOffmapTile = (x, y) => {
-            for(let k = 0; k < 3; k++) {
-                for(let p = 0; p < 3; p++) {
-                    this._context.drawImage(this._imageStorage['waterTile'], x + SECTION_SIZE*p, y + SECTION_SIZE*k, SECTION_SIZE, SECTION_SIZE);
-                }
-            }
-        };
-
-        this._renderLeaderboard = (myInfo, leaderboard) => {
-            for(let leader of leaderboard) {
-                this._leaderboardList[leader.rank()].text(leader.rank() + ": " + leader.name());
-            }
-            this._leaderboardList[11].text(myInfo.rank() + ": " + myInfo.name());
-        };
-
-        this._renderMap = (player) => {
-            let startx = -negmod(this._camera.x, SECTION_SIZE * 3);
-            let starty = -negmod(this._camera.y, SECTION_SIZE * 3);
-
-            for (let i = 0; i < Math.ceil(this._camera.sheight() / (SECTION_SIZE * 3)) + 1; i++) {
-                for (let j = 0; j < Math.ceil(this._camera.swidth() / (SECTION_SIZE * 3)) + 1; j++) {
-                    let x = Math.floor(startx + j * SECTION_SIZE * 3);
-                    let y = Math.floor(starty + i * SECTION_SIZE * 3);
-                    if(x + this._camera.x < -1 || y + this._camera.y < -1
-                            ||(x + this._camera.x + this._camera.swidth() / 2) > SECTION_SIZE * 3 * CHUNK_COUNT
-                            || (y + this._camera.y + this._camera.sheight() / 2) > SECTION_SIZE * 3 * CHUNK_COUNT) {
-                        this._drawOffmapTile(x, y);
-                        continue;
-                    }
-                    this._renderMapChunk(x, y, -player.rotation * Math.PI / 180);
-                }
-            }
-        };
-
-        this._setSmallFontProperties = () => {
-            this._context.font = "12px HelveticaNeue-CondensedBold";
-            this._context.textAlign = 'center';
-            this._context.textBaseline = 'middle';
-        };
-
-        this._renderXPBar = (player) => {
-            this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 32, this._camera.swidth() * 0.8, LARGE_BAR_HEIGHT);
-            this._context.fillStyle = 'rgb(26, 157, 204)'; //render xp in blue
-            let filledLength = player.stats.xp / __WEBPACK_IMPORTED_MODULE_0__common_js__["b" /* maxXPForLevel */](player.stats.level);
-            filledLength = Math.max(0, Math.min(filledLength, 1)) * this._camera.swidth() * 0.8;
-            this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 32, filledLength, LARGE_BAR_HEIGHT);
-
-            this._context.fillStyle = 'white';
-            this._setSmallFontProperties();
-            this._context.fillText(player.stats.xp + ' / ' + __WEBPACK_IMPORTED_MODULE_0__common_js__["b" /* maxXPForLevel */](player.stats.level) + ' XP', this._camera.swidth() * 0.5, this._camera.sheight() - 32 + LARGE_BAR_HEIGHT/2);
-        };
-
-        this._renderLargeHPBar = (player) => {
-            this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
-            this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 52, this._camera.swidth() * 0.8, LARGE_BAR_HEIGHT);
-            this._context.fillStyle = 'rgb(15, 174, 6)'; //render hp in green
-            let filledLength = player.stats.health / __WEBPACK_IMPORTED_MODULE_0__common_js__["a" /* maxHPForLevel */](player.stats.level);
-            filledLength = Math.max(0, Math.min(filledLength, 1)) * this._camera.swidth() * 0.8;
-            this._context.fillRect(this._camera.swidth() * 0.1, this._camera.sheight() - 52, filledLength, LARGE_BAR_HEIGHT);
-
-            this._context.fillStyle = 'white';
-            this._setSmallFontProperties();
-            this._context.fillText(player.stats.health + ' / ' + __WEBPACK_IMPORTED_MODULE_0__common_js__["a" /* maxHPForLevel */](player.stats.level) + ' HP', this._camera.swidth() * 0.5, this._camera.sheight() - 52 + LARGE_BAR_HEIGHT/2);
-        };
-
-        this._renderEntities = (entities) => {
-            for (let entity of entities.values()) {
-                if(entity.type === buffers.EntityUnion.PlayerBuffer) continue;
-                this._renderEntity(entity);
-            }
-            for (let entity of entities.values()) {
-                if(entity.type !== buffers.EntityUnion.PlayerBuffer) continue;
-                this._renderEntity(entity);
-            }
-        };
-
-        this.render = (entities, leaderboard, myInfo, player) => {
-            this._context.clearRect(0, 0, this._canvas.width, this._canvas.height); //clear canvas
-            this._renderMap(player);
-            this._renderEntities(entities);
-            this._renderXPBar(player);
-            this._renderLargeHPBar(player);
-            this._renderLeaderboard(myInfo, leaderboard);
-            this._renderMinimap(entities, player);
-        };
-
-        this.centerCameraOnPlayer = (player) => {
-            this._camera.x = player.x - this._camera.swidth() / 2;
-            this._camera.y = player.y - this._camera.sheight() / 2;
-        };
-
-        this._updateCanvasSize = () => {
-            this._canvas.width = window.innerWidth;
-            this._canvas.height = window.innerHeight;
-
-            let gameRatio = 900/1440;
-            let windowRatio = window.innerHeight / window.innerWidth;
-            if(windowRatio < gameRatio) { //fit to width
-                this._camera.scale = window.innerWidth / 1440;
-                this._context.setTransform(this._camera.scale, 0, 0, this._camera.scale, 0, 0);
-            } else { //fit to height
-                this._camera.scale = window.innerHeight / 900;
-                this._context.setTransform(this._camera.scale, 0, 0, this._camera.scale, 0, 0);
-            }
-            this._context.imageSmoothingEnabled = false; //to properly scale pixel art
-        };
-
-        this._updateCanvasSize();
-        window.onresize = this._updateCanvasSize;
-        // window.addEventListener('resize', this._updateCanvasSize, false);
-    }
-
+function radians(n) {
+    return n * Math.PI / 180;
 }
-/* harmony export (immutable) */ __webpack_exports__["a"] = Renderer;
 
+function rtog(val, max) {
+    var r = Math.floor(200 * (max - val) / max);
+    var g = Math.floor(200 * val / max);
+    return 'rgb(' + r + ', ' + g + ', 0)';
+}
+
+var Renderer = function Renderer(camera) {
+    var _this = this;
+
+    _classCallCheck(this, Renderer);
+
+    this._canvas = document.getElementById('canvas');
+    this._context = this._canvas.getContext('2d');
+    this._player = undefined;
+
+    this._imageStorage = {
+        'playerSpritesheet': document.getElementById('playerSpritesheet'),
+        'gascan': document.getElementById('gasCanImg'),
+        'wreckage': document.getElementById('wreckageImg'),
+        'launchpad': document.getElementById('launchpadImg'),
+        'waterTile': document.getElementById('waterImg'),
+        'road': document.getElementById('road'),
+        'grass': document.getElementById('grass'),
+        'intersection': document.getElementById('intersection')
+    };
+
+    this._leaderboardList = {
+        1: $("#1"),
+        2: $("#2"),
+        3: $("#3"),
+        4: $("#4"),
+        5: $("#5"),
+        6: $("#6"),
+        7: $("#7"),
+        8: $("#8"),
+        9: $("#9"),
+        10: $("#10"),
+        11: $("#11")
+    };
+
+    this._imageForEntity = function (entity) {
+        switch (entity.type) {
+            case buffers.EntityUnion.PlayerBuffer:
+                return _this._imageStorage['playerSpritesheet'];
+            case buffers.EntityUnion.GasCanBuffer:
+                return _this._imageStorage['gascan'];
+            case buffers.EntityUnion.WreckageBuffer:
+                return _this._imageStorage['wreckage'];
+            case buffers.EntityUnion.LaunchpadBuffer:
+                return _this._imageStorage['launchpad'];
+        }
+    };
+
+    this._renderPlayerName = function (playerEntity) {
+        _this._context.font = '10px arial';
+        _this._context.textAlign = 'center';
+        _this._context.fillStyle = '#fff';
+        var yoffset = playerEntity.rotation === 180 || playerEntity.rotation === 0 ? 24 + 10 : 16 + 10;
+        _this._context.fillText(playerEntity.name, 0, yoffset);
+    };
+
+    this._renderPlayerTail = function (playerEntity) {
+        var gradient = _this._context.createLinearGradient(0, 0, 100 * Math.cos(radians(90)), 100 * Math.sin(radians(90)));
+        if (playerEntity.id === _this._player.id) {
+            gradient.addColorStop(0.00, "rgba(245, 252, 45, 0.6)");
+        } else if (playerEntity.stats.level > _this._player.stats.level) {
+            gradient.addColorStop(0.00, "rgba(255, 0, 0, 0.6)");
+        } else if (playerEntity.stats.level === _this._player.stats.level) {
+            gradient.addColorStop(0.00, "rgba(0, 0, 255, 0.6)");
+        } else {
+            gradient.addColorStop(0.00, "rgba(0, 255, 0, 0.6)");
+        }
+        gradient.addColorStop(0.8, "transparent");
+
+        _this._context.lineWidth = 24;
+        _this._context.beginPath();
+        _this._context.moveTo(0, 0);
+        _this._context.lineTo(200 * Math.cos(radians(90)), 100 * Math.sin(radians(90)));
+        _this._context.strokeStyle = gradient;
+        _this._context.stroke();
+    };
+
+    this._renderPlayerExtras = function (playerEntity) {
+        _this._context.fillStyle = 'rgba(255, 0, 0, 0.3)';
+        if (playerEntity.stats.hurtFlag) _this._context.fillRect(-16, -24, 32, 48);
+        //reverse rotation
+        _this._context.rotate(playerEntity.rotation * Math.PI / 180);
+        //render name
+        if (playerEntity.stats.hurtFlag) _this._renderHPBar(playerEntity);
+        _this._renderPlayerName(playerEntity);
+    };
+
+    this._renderPlayerOnMinimap = function (player) {
+        var x = player.x / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
+        var y = player.y / (CHUNK_COUNT * SECTION_SIZE * 3) * MINIMAP_SIZE;
+        _this._context.fillRect(x - MINIMAP_PLAYER_SIZE / 2, y - MINIMAP_PLAYER_SIZE / 2, MINIMAP_PLAYER_SIZE, MINIMAP_PLAYER_SIZE);
+    };
+
+    this._renderMinimap = function (entities, player) {
+        _this._context.save();
+        _this._context.translate(8, 8);
+        _this._context.fillStyle = 'rgba(0,0,0,0.5)';
+        _this._context.fillRect(0, 0, MINIMAP_SIZE, MINIMAP_SIZE);
+        _this._context.fillStyle = '#555';
+        for (var i = 0; i < CHUNK_COUNT; i++) {
+            for (var j = 0; j < CHUNK_COUNT; j++) {
+                var laneWidth = MINIMAP_CHUNK_SIZE * 0.25;
+                _this._context.fillRect(Math.floor(MINIMAP_CHUNK_SIZE * (i + 0.5) - laneWidth / 2), MINIMAP_CHUNK_SIZE * j, laneWidth, MINIMAP_CHUNK_SIZE + 1);
+                _this._context.fillRect(MINIMAP_CHUNK_SIZE * i, Math.floor(MINIMAP_CHUNK_SIZE * (j + 0.5) - laneWidth / 2), MINIMAP_CHUNK_SIZE + 1, laneWidth);
+            }
+        }
+        _this._context.fillStyle = '#ef6767';
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = entities.values()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var entity = _step.value;
+
+                if (entity.type === buffers.EntityUnion.PlayerBuffer) _this._renderPlayerOnMinimap(entity);
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+
+        _this._context.fillStyle = '#4e7ce8';
+        _this._renderPlayerOnMinimap(player);
+        _this._context.restore();
+    };
+
+    this._renderEntity = function (entity) {
+        var img = _this._imageForEntity(entity);
+        _this._context.save();
+        _this._context.translate(Math.floor(entity.x - camera.x), Math.floor(entity.y - camera.y));
+        _this._context.rotate(-entity.rotation * Math.PI / 180);
+
+        if (entity.type === buffers.EntityUnion.PlayerBuffer) {
+            _this._renderPlayerTail(entity);
+            _this._context.drawImage(img, (entity.stats.level - 1) * 32, 0, 32, 48, -16, -24, 32, 48);
+            _this._renderPlayerExtras(entity);
+        } else {
+            _this._context.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
+        }
+        _this._context.restore();
+    };
+
+    this._renderMapChunk = function (x, y, rotation) {
+        for (var row = 0; row < 3; row++) {
+            for (var col = 0; col < 3; col++) {
+                _this._context.save();
+                if ((row === 0 || row === 2) && (col === 0 || col === 2)) _this._context.drawImage(_this._imageStorage['grass'], x + col * SECTION_SIZE, y + row * SECTION_SIZE, SECTION_SIZE + 1, SECTION_SIZE + 1);else if (row === 1 && col === 1) {
+                    _this._context.translate(x + col * SECTION_SIZE + SECTION_SIZE / 2, y + row * SECTION_SIZE + SECTION_SIZE / 2);
+                    _this._context.rotate(rotation);
+                    _this._context.drawImage(_this._imageStorage['intersection'], -SECTION_SIZE / 2, -SECTION_SIZE / 2, SECTION_SIZE + 1, SECTION_SIZE + 1);
+                } else {
+                    _this._context.translate(x + col * SECTION_SIZE + SECTION_SIZE / 2, y + row * SECTION_SIZE + SECTION_SIZE / 2);
+                    if (row === 1) _this._context.rotate(90 * Math.PI / 180);
+                    _this._context.drawImage(_this._imageStorage['road'], -SECTION_SIZE / 2, -SECTION_SIZE / 2, SECTION_SIZE + 1, SECTION_SIZE + 1);
+                }
+                _this._context.restore();
+            }
+        }
+    };
+
+    this._renderGasLevel = function (gasLevel) {
+        var height = camera.sheight() * 0.5;
+        _this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        _this._context.save();
+        _this._context.translate(12, camera.sheight() / 2);
+        _this._context.fillRect(0, -height / 2, LARGE_BAR_HEIGHT, height);
+        var filledLength = Math.max(0, Math.min(gasLevel / 100, 1)) * height;
+        _this._context.fillStyle = rtog(gasLevel, 100);
+        _this._context.fillRect(0, height / 2 - filledLength, LARGE_BAR_HEIGHT, filledLength);
+
+        _this._setSmallFontProperties(14);
+        _this._context.fillStyle = 'white';
+        _this._context.fillText('Gas', LARGE_BAR_HEIGHT / 2, height / 2 + 12);
+        _this._context.restore();
+    };
+
+    this._renderHPBar = function (playerEntity) {
+        _this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        var yoffset = playerEntity.rotation === 180 || playerEntity.rotation === 0 ? -24 - (SMALL_HP_BAR_HEIGHT + 1) : -16 - (SMALL_HP_BAR_HEIGHT + 1);
+        _this._context.fillRect(-HP_BAR_LEN / 2, yoffset, HP_BAR_LEN, SMALL_HP_BAR_HEIGHT); //draw background bar
+        _this._context.fillStyle = rtog(player.stats.health, common.maxHPForLevel(playerEntity.stats.level));
+        var filledLength = playerEntity.stats.health / common.maxHPForLevel(playerEntity.stats.level);
+        filledLength = Math.max(0, Math.min(filledLength, 1)) * HP_BAR_LEN;
+        _this._context.fillRect(-HP_BAR_LEN / 2, yoffset, filledLength, SMALL_HP_BAR_HEIGHT);
+    };
+
+    this._drawOffmapTile = function (x, y) {
+        for (var k = 0; k < 3; k++) {
+            for (var p = 0; p < 3; p++) {
+                _this._context.drawImage(_this._imageStorage['waterTile'], x + SECTION_SIZE * p, y + SECTION_SIZE * k, SECTION_SIZE, SECTION_SIZE);
+            }
+        }
+    };
+
+    this._renderLeaderboard = function (myInfo, leaderboard) {
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+            for (var _iterator2 = leaderboard[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var leader = _step2.value;
+
+                _this._leaderboardList[leader.rank()].text(leader.rank() + ": " + leader.name() + " - " + numAbbr.abbreviate(leader.score(), 2));
+            }
+        } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                    _iterator2.return();
+                }
+            } finally {
+                if (_didIteratorError2) {
+                    throw _iteratorError2;
+                }
+            }
+        }
+
+        _this._leaderboardList[11].text(myInfo.rank() + ": " + myInfo.name() + " - " + numAbbr.abbreviate(myInfo.score(), 2));
+    };
+
+    this._renderMap = function (player) {
+        var startx = -negmod(Math.floor(camera.x), SECTION_SIZE * 3);
+        var starty = -negmod(Math.floor(camera.y), SECTION_SIZE * 3);
+
+        for (var i = 0; i < Math.ceil(camera.sheight() / (SECTION_SIZE * 3)) + 1; i++) {
+            for (var j = 0; j < Math.ceil(camera.swidth() / (SECTION_SIZE * 3)) + 1; j++) {
+                var x = startx + j * SECTION_SIZE * 3;
+                var y = starty + i * SECTION_SIZE * 3;
+                if (x + camera.x < -1 || y + camera.y < -1 || x + camera.x + camera.swidth() / 2 > SECTION_SIZE * 3 * CHUNK_COUNT || y + camera.y + camera.sheight() / 2 > SECTION_SIZE * 3 * CHUNK_COUNT) {
+                    _this._drawOffmapTile(x, y);
+                    continue;
+                }
+                _this._renderMapChunk(x, y, -player.rotation * Math.PI / 180);
+            }
+        }
+    };
+
+    this._setSmallFontProperties = function (size) {
+        if (!size) size = 12;
+        _this._context.font = size + "px HelveticaNeue-CondensedBold";
+        _this._context.textAlign = 'center';
+        _this._context.textBaseline = 'middle';
+    };
+
+    this._renderXPBar = function (player) {
+        _this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        _this._context.fillRect(camera.swidth() * 0.1, camera.sheight() - 32, camera.swidth() * 0.8, LARGE_BAR_HEIGHT);
+        _this._context.fillStyle = 'rgb(26, 157, 204)'; //render xp in blue
+        var filledLength = player.stats.xp / common.maxXPForLevel(player.stats.level);
+        filledLength = Math.max(0, Math.min(filledLength, 1)) * camera.swidth() * 0.8;
+        _this._context.fillRect(camera.swidth() * 0.1, camera.sheight() - 32, filledLength, LARGE_BAR_HEIGHT);
+
+        _this._context.fillStyle = 'white';
+        _this._setSmallFontProperties();
+        _this._context.fillText(player.stats.xp + ' / ' + common.maxXPForLevel(player.stats.level) + ' XP', camera.swidth() * 0.5, camera.sheight() - 32 + LARGE_BAR_HEIGHT / 2);
+    };
+
+    this._renderLargeHPBar = function (player) {
+        _this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        _this._context.fillRect(camera.swidth() * 0.1, camera.sheight() - 52, camera.swidth() * 0.8, LARGE_BAR_HEIGHT);
+        _this._context.fillStyle = rtog(player.stats.health, common.maxHPForLevel(player.stats.level));
+        var filledLength = player.stats.health / common.maxHPForLevel(player.stats.level);
+        filledLength = Math.max(0, Math.min(filledLength, 1)) * camera.swidth() * 0.8;
+        _this._context.fillRect(camera.swidth() * 0.1, camera.sheight() - 52, filledLength, LARGE_BAR_HEIGHT);
+
+        _this._context.fillStyle = 'white';
+        _this._setSmallFontProperties();
+        _this._context.fillText(player.stats.health + ' / ' + common.maxHPForLevel(player.stats.level) + ' HP', camera.swidth() * 0.5, camera.sheight() - 52 + LARGE_BAR_HEIGHT / 2);
+    };
+
+    this._renderEntities = function (entities) {
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
+
+        try {
+            for (var _iterator3 = entities.values()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                var entity = _step3.value;
+
+                if (entity.type === buffers.EntityUnion.PlayerBuffer) continue;
+                _this._renderEntity(entity);
+            }
+        } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                    _iterator3.return();
+                }
+            } finally {
+                if (_didIteratorError3) {
+                    throw _iteratorError3;
+                }
+            }
+        }
+
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
+
+        try {
+            for (var _iterator4 = entities.values()[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+                var _entity = _step4.value;
+
+                if (_entity.type !== buffers.EntityUnion.PlayerBuffer) continue;
+                _this._renderEntity(_entity);
+            }
+        } catch (err) {
+            _didIteratorError4 = true;
+            _iteratorError4 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                    _iterator4.return();
+                }
+            } finally {
+                if (_didIteratorError4) {
+                    throw _iteratorError4;
+                }
+            }
+        }
+    };
+
+    this.render = function (entities, leaderboard, myInfo, player) {
+        _this._player = player;
+        _this._renderMap(player);
+        _this._renderEntities(entities);
+        _this._renderXPBar(player);
+        _this._renderLargeHPBar(player);
+        _this._renderLeaderboard(myInfo, leaderboard);
+        _this._renderMinimap(entities, player);
+        _this._renderGasLevel(player.stats.gasLevel);
+    };
+
+    this.centerCameraOnPlayer = function (player) {
+        camera.x = player.x - camera.swidth() / 2;
+        camera.y = player.y - camera.sheight() / 2;
+    };
+};
+
+exports.default = Renderer;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.maxHPForLevel = maxHPForLevel;
+exports.maxXPForLevel = maxXPForLevel;
+/**
+ * Created by Gregory on 6/19/17.
+ */
+
+function maxHPForLevel(lvl) {
+    return 30 * lvl;
+}
+
+function maxXPForLevel(lvl) {
+    return (Math.pow(2, lvl) - Math.pow(2, lvl - 1)) * 200;
+}
 
 /***/ })
 /******/ ]);

@@ -16,13 +16,8 @@ export default class Game {
             slow: false
         };
 
-        this._hammer = new Hammer.Manager(document.getElementById('canvas'));
+        this._hammer = new Hammer.Manager(window);
         this._hammer.add(new Hammer.Swipe());
-
-        this._hammer.on('swipeleft', () => this._handleKeyPress(37));
-        this._hammer.on('swiperight', () => this._handleKeyPress(39));
-        this._hammer.on('swipeup', () => this._handleKeyPress(38));
-        this._hammer.on('swipedown', () => this._handleKeyPress(40));
 
         this._turnmap = {
             //key = player rotation, val = [keyToTurnLeft, keyToTurnRight]
@@ -30,6 +25,25 @@ export default class Game {
             90: [40, 38],
             180: [39, 37],
             270: [38, 40]
+        };
+        this._slowButton = $('#slowButton');
+
+        this._setupInputForMobile = () => {
+            this._hammer.on('swipeleft', (e) => this._handleKeyPress(37));
+            this._hammer.on('swiperight', () => this._handleKeyPress(39));
+            this._hammer.on('swipeup', () => this._handleKeyPress(38));
+            this._hammer.on('swipedown', () => this._handleKeyPress(40));
+
+            this._slowButton.bind('touchstart', () => this._slowButton.trigger('mousedown')).bind('touchend', () => this._slowButton.trigger('mouseup')); //mobile support
+
+            this._slowButton.mousedown(() => {
+                this._inputPacket.slow = true;
+                return false;
+            });
+            $(document).mouseup(() => {
+                this._inputPacket.slow = false;
+                return false;
+            });
         };
 
         this._setupInput = () => {
@@ -85,6 +99,10 @@ export default class Game {
                 entity.dy = endEntity.y - entity.y;
                 entity.startx = entity.x;
                 entity.starty = entity.y;
+                if(entity.id === this.player.id) {
+                    entity.stats.gasLevelStart = entity.stats.gasLevel;
+                    entity.stats.gasLevelDelta = endEntity.stats.gasLevel - entity.stats.gasLevel;
+                }
             }
         };
 
@@ -108,6 +126,9 @@ export default class Game {
                 if(isNaN(entity.dx) || isNaN(entity.dy)) continue; //doesnt exist in endupdate
                 entity.x = entity.startx + entity.dx * ratio;
                 entity.y = entity.starty + entity.dy * ratio;
+                if(entity.id === this.player.id) {
+                    entity.stats.gasLevel = entity.stats.gasLevelStart + entity.stats.gasLevelDelta * ratio;
+                }
             }
             if (ratio >= 1) {
                 this._interpData.startUpdate = this._interpData.endUpdate;
@@ -129,11 +150,12 @@ export default class Game {
             }
         };
 
-        this.handleRecieveMsg = (msg) => {
-            let bytes = new Uint8Array(msg.data);
-            let buf = new flatbuffers.ByteBuffer(bytes);
-            let msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
-            if(msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) this._packetQueue.push(this._createPacketFromSnapshotBuffer(msgBuf.message(new buffers.SnapshotBuffer())));
+        this.cleanup = () => {
+            this._hammer.destroy();
+        };
+
+        this.handleRecieveSnapshot = (msgBuf) => {
+            this._packetQueue.push(this._createPacketFromSnapshotBuffer(msgBuf.message(new buffers.SnapshotBuffer())));
         };
 
         this._createPacketFromSnapshotBuffer = (buffer) => {
@@ -145,10 +167,11 @@ export default class Game {
                 if(entity.id === playerid) packet.player = entity;
                 packet.entities.push(entity);
             }
-            packet.leaderboard = []
+            packet.leaderboard = [];
             for(let i = 0; i < buffer.leaderboardLength(); i++) {
                 packet.leaderboard.push(buffer.leaderboard(i));
             }
+            packet.player.stats.gasLevel = buffer.gasLevel();
             packet.clientTimeMs = Date.now();
             packet.serverTimeMs = buffer.serverTimeMs().toFloat64();
             packet.myInfo = buffer.myInfo();
@@ -180,7 +203,7 @@ export default class Game {
                 xp: entityBuffer.stats().xp(),
                 level: entityBuffer.stats().level(),
                 health: entityBuffer.stats().health(),
-                hurtFlag: entityBuffer.stats().hurtFlag(),
+                hurtFlag: entityBuffer.stats().hurtFlag()
             };
             player.name = entityBuffer.name();
             return player;
@@ -216,6 +239,10 @@ export default class Game {
 
         //setup input
         this._setupInput();
+
+        if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+            this._setupInputForMobile();
+        }
     }
 
     get myInfo() {
