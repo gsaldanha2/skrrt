@@ -855,19 +855,10 @@ buffers.JoinDataBuffer.prototype.name = function(optionalEncoding) {
 };
 
 /**
- * @param {flatbuffers.Encoding=} optionalEncoding
- * @returns {string|Uint8Array}
- */
-buffers.JoinDataBuffer.prototype.googleToken = function(optionalEncoding) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 buffers.JoinDataBuffer.startJoinDataBuffer = function(builder) {
-  builder.startObject(2);
+  builder.startObject(1);
 };
 
 /**
@@ -876,14 +867,6 @@ buffers.JoinDataBuffer.startJoinDataBuffer = function(builder) {
  */
 buffers.JoinDataBuffer.addName = function(builder, nameOffset) {
   builder.addFieldOffset(0, nameOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} googleTokenOffset
- */
-buffers.JoinDataBuffer.addGoogleToken = function(builder, googleTokenOffset) {
-  builder.addFieldOffset(1, googleTokenOffset, 0);
 };
 
 /**
@@ -1293,28 +1276,10 @@ buffers.ServerDataBuffer.getRootAsServerDataBuffer = function(bb, obj) {
 };
 
 /**
- * @param {number} index
- * @param {buffers.PlayerInfo=} obj
- * @returns {buffers.PlayerInfo}
- */
-buffers.ServerDataBuffer.prototype.players = function(index, obj) {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? (obj || new buffers.PlayerInfo).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-};
-
-/**
- * @returns {number}
- */
-buffers.ServerDataBuffer.prototype.playersLength = function() {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-};
-
-/**
  * @returns {number}
  */
 buffers.ServerDataBuffer.prototype.playerCount = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
+  var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readUint16(this.bb_pos + offset) : 0;
 };
 
@@ -1322,36 +1287,7 @@ buffers.ServerDataBuffer.prototype.playerCount = function() {
  * @param {flatbuffers.Builder} builder
  */
 buffers.ServerDataBuffer.startServerDataBuffer = function(builder) {
-  builder.startObject(2);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} playersOffset
- */
-buffers.ServerDataBuffer.addPlayers = function(builder, playersOffset) {
-  builder.addFieldOffset(0, playersOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {Array.<flatbuffers.Offset>} data
- * @returns {flatbuffers.Offset}
- */
-buffers.ServerDataBuffer.createPlayersVector = function(builder, data) {
-  builder.startVector(4, data.length, 4);
-  for (var i = data.length - 1; i >= 0; i--) {
-    builder.addOffset(data[i]);
-  }
-  return builder.endVector();
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {number} numElems
- */
-buffers.ServerDataBuffer.startPlayersVector = function(builder, numElems) {
-  builder.startVector(4, numElems, 4);
+  builder.startObject(1);
 };
 
 /**
@@ -1359,7 +1295,7 @@ buffers.ServerDataBuffer.startPlayersVector = function(builder, numElems) {
  * @param {number} playerCount
  */
 buffers.ServerDataBuffer.addPlayerCount = function(builder, playerCount) {
-  builder.addFieldInt16(1, playerCount, 0);
+  builder.addFieldInt16(0, playerCount, 0);
 };
 
 /**

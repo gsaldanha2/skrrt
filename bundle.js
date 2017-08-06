@@ -190,11 +190,9 @@ var PlayState = function PlayState(stateManager, playerName) {
     this._createJoinPacket = function (name) {
         var builder = new flatbuffers.Builder(128);
         var nameOff = builder.createString(name);
-        var tokenOff = builder.createString(googleUser !== undefined ? googleUser.getAuthResponse().id_token : "");
 
         buffers.JoinDataBuffer.startJoinDataBuffer(builder);
         buffers.JoinDataBuffer.addName(builder, nameOff);
-        buffers.JoinDataBuffer.addGoogleToken(builder, tokenOff);
         var joinBuf = buffers.JoinDataBuffer.endJoinDataBuffer(builder);
 
         buffers.MessageBuffer.startMessageBuffer(builder);
@@ -444,19 +442,6 @@ var MenuState = function MenuState(stateManager) {
         'US-CA': 'ws://localhost:8080'
     };
 
-    this._leaderboardList = {
-        1: $("#1p"),
-        2: $("#2p"),
-        3: $("#3p"),
-        4: $("#4p"),
-        5: $("#5p"),
-        6: $("#6p"),
-        7: $("#7p"),
-        8: $("#8p"),
-        9: $("#9p"),
-        10: $("#10p")
-    };
-
     $('#loginArea').slideDown(1000);
     $('#infoArea').slideDown(1000);
     $('#tutorialArea').slideDown(1000);
@@ -515,22 +500,9 @@ var MenuState = function MenuState(stateManager) {
         var msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
         if (msgBuf.messageType() === buffers.MessageUnion.ServerDataBuffer) {
             var dataBuf = msgBuf.message(new buffers.ServerDataBuffer());
-            _this._updateLeaderboard(dataBuf);
             _this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
         }
     };
-
-    this._updateLeaderboard = function (dataBuf) {
-        for (var i = 0; i < 10; i++) {
-            var p = dataBuf.players(i);
-            if (p === null || p.name() === "") {
-                _this._leaderboardList[i + 1].text(i + 1 + ": ");
-                continue;
-            }
-            _this._leaderboardList[p.rank() + 1].text(p.rank() + 1 + ": " + p.name() + " - " + numAbbr.abbreviate(p.score(), 2));
-        }
-    };
-
     this.update = function () {
         for (var row = 0; row < Math.floor(stateManager.camera.swidth() / _this._tileSize) + 1; row++) {
             for (var col = 0; col < Math.floor(stateManager.camera.sheight() / _this._tileSize) + 1; col++) {

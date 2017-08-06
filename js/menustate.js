@@ -26,19 +26,6 @@ export default class MenuState {
             'US-CA': 'ws://localhost:8080',
         };
 
-        this._leaderboardList = {
-            1: $("#1p"),
-            2: $("#2p"),
-            3: $("#3p"),
-            4: $("#4p"),
-            5: $("#5p"),
-            6: $("#6p"),
-            7: $("#7p"),
-            8: $("#8p"),
-            9: $("#9p"),
-            10: $("#10p"),
-        };
-
         $('#loginArea').slideDown(1000);
         $('#infoArea').slideDown(1000);
         $('#tutorialArea').slideDown(1000);
@@ -93,22 +80,9 @@ export default class MenuState {
             let msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
             if(msgBuf.messageType() === buffers.MessageUnion.ServerDataBuffer) {
                 let dataBuf = msgBuf.message(new buffers.ServerDataBuffer());
-                this._updateLeaderboard(dataBuf);
                 this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
             }
         };
-
-        this._updateLeaderboard = (dataBuf) => {
-            for(let i = 0; i < 10; i++) {
-                let p = dataBuf.players(i);
-                if(p === null || p.name() === "") {
-                    this._leaderboardList[i+1].text(i+1 + ": ");
-                    continue;
-                }
-                this._leaderboardList[p.rank()+1].text(p.rank()+1 + ": " + p.name() + " - " + numAbbr.abbreviate(p.score(), 2));
-            }
-        };
-
         this.update = () => {
             for(let row = 0; row < Math.floor(stateManager.camera.swidth() / this._tileSize) + 1; row++) {
                 for (let col = 0; col < Math.floor(stateManager.camera.sheight() / this._tileSize) + 1; col++) {

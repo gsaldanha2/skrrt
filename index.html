@@ -14,9 +14,6 @@
     <meta property="og:url" content="http://skrrtio.herokuapp.com/" />
     <meta property="og:site_name" content="Skrrt.io" />
 
-    <meta name="google-signin-scope" content="profile email">
-    <meta name="google-signin-client_id"
-          content="252744835439-a3m7uf7ipjql5khmrg2varr10rnghf00.apps.googleusercontent.com">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?v=2" />
@@ -73,9 +70,6 @@
                data-hashtags="skrrtio" data-show-count="false">Tweet</a>
             <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-            <label style="display: block; width: 100%; text-align: center; margin-top: 8px;">Sign in to save a high score:</label>
-            <div class="g-signin2" id="googleSignIn" data-onsuccess="onSignIn" data-prompt="select_account" data-longtitle="true" data-width="190" data-height="40"></div>
-            <button class="g-signout" id="g-signout">Sign Out</button>
             <button class="feedback" onclick="_urq.push(['Feedback_Open'])">Feedback/Bug</button>
         </div>
 
@@ -97,23 +91,6 @@
                 <input type="image" src="img/refresh.png" id="refreshBtn" />
             </div>
             <button class="playButton" id="playButton">PLAY</button>
-
-
-            <div class="alltime-leaderboard" id="alltime-leaderboard">
-                <label style="color:white;font-size:16px;margin-bottom: 4px">-- Highest Scores --</label>
-                <ul style="list-style-type:none;color:white;font-size:14px;padding:0;margin:0;">
-                    <li id="1p"></li>
-                    <li id="2p"></li>
-                    <li id="3p"></li>
-                    <li id="4p"></li>
-                    <li id="5p"></li>
-                    <li id="6p"></li>
-                    <li id="7p"></li>
-                    <li id="8p"></li>
-                    <li id="9p"></li>
-                    <li id="10p"></li>
-                </ul>
-            </div>
         </div>
 
     </div>
@@ -144,27 +121,7 @@
 <script type="text/javascript" src="buffers/InputPacketBuffer_generated.js"></script>
 <script type="text/javascript" src="buffers/SnapshotBuffer_generated.js"></script>
 
-<script type="text/javascript">
-    var googleUser = undefined;
-
-    function onSignIn(user) {
-        googleUser = user;
-        document.getElementById('googleSignIn').style.display = 'none';
-        document.getElementById('g-signout').style.display = 'block';
-    }
-
-    $("#g-signout").click(function onSignOut() {
-        var auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut().then(function () {
-            googleUser = undefined;
-            document.getElementById('googleSignIn').style.display = 'block';
-            document.getElementById('g-signout').style.display = 'none';
-        });
-    });
-</script>
-
 <script type="text/javascript" src="bundle.js"></script>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
 
 <script type="text/javascript">
     window._urq = window._urq || [];

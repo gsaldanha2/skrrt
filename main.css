@@ -170,16 +170,6 @@ input {
     border-right: none;
 }
 
-#googleSignIn {
-    margin-top: 8px;
-}
-
-#googleSignIn > div {
-    margin: 0 auto;
-    text-align: center;
-    border-radius: 5px;
-}
-
 .serverSelectWrapper {
     position:relative;
     display:inline-block;
@@ -216,24 +206,6 @@ input {
     -webkit-filter: brightness(50%);
 }
 
-.g-signout  {
-    display: none;
-    position: relative;
-    margin: 0 auto;
-    margin-top: 16px;
-    text-align: center;
-    background-color: #cc0000;
-    border: solid #cc0000 3px;
-    outline: none;
-    color: #fff;
-    border-radius: 25px;
-    font-size: 12px;
-
-    padding: 3px 30px 3px 30px;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-}
-
 .scoreLabel {
     display: block;
     width: 100%;
@@ -241,10 +213,6 @@ input {
     text-align: center;
     font-size: 10pt;
     margin-top: 12px;
-}
-
-.g-signout:hover {
-    background-color: transparent;
 }
 
 .feedback:active {

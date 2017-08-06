@@ -17,11 +17,9 @@ export default class PlayState {
         this._createJoinPacket = (name) => {
             let builder = new flatbuffers.Builder(128);
             let nameOff = builder.createString(name);
-            let tokenOff = builder.createString(googleUser !== undefined ? googleUser.getAuthResponse().id_token : "");
 
             buffers.JoinDataBuffer.startJoinDataBuffer(builder);
             buffers.JoinDataBuffer.addName(builder, nameOff);
-            buffers.JoinDataBuffer.addGoogleToken(builder, tokenOff);
             let joinBuf = buffers.JoinDataBuffer.endJoinDataBuffer(builder);
 
             buffers.MessageBuffer.startMessageBuffer(builder);
