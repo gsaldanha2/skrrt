@@ -26,7 +26,8 @@ buffers.MessageUnion = {
   InputPacketBuffer: 2,
   JoinDataBuffer: 3,
   DeathBuffer: 4,
-  ServerDataBuffer: 5
+  ServerDataBuffer: 5,
+  InfoBuffer: 6
 };
 
 /**
@@ -146,16 +147,24 @@ buffers.StatsBuffer.prototype.hurtFlag = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+buffers.StatsBuffer.prototype.spawnProtected = function() {
+  return !!this.bb.readInt8(this.bb_pos + 7);
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  * @param {number} xp
  * @param {number} level
  * @param {number} health
  * @param {boolean} hurtFlag
+ * @param {boolean} spawnProtected
  * @returns {flatbuffers.Offset}
  */
-buffers.StatsBuffer.createStatsBuffer = function(builder, xp, level, health, hurtFlag) {
+buffers.StatsBuffer.createStatsBuffer = function(builder, xp, level, health, hurtFlag, spawnProtected) {
   builder.prep(2, 8);
-  builder.pad(1);
+  builder.writeInt8(+spawnProtected);
   builder.writeInt8(+hurtFlag);
   builder.writeInt16(health);
   builder.pad(1);
@@ -204,7 +213,7 @@ buffers.PlayerBuffer.getRootAsPlayerBuffer = function(bb, obj) {
  */
 buffers.PlayerBuffer.prototype.id = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readUint16(this.bb_pos + offset) : 0;
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -246,7 +255,7 @@ buffers.PlayerBuffer.startPlayerBuffer = function(builder) {
  * @param {number} id
  */
 buffers.PlayerBuffer.addId = function(builder, id) {
-  builder.addFieldInt16(0, id, 0);
+  builder.addFieldInt32(0, id, 0);
 };
 
 /**
@@ -431,7 +440,7 @@ buffers.GasCanBuffer.prototype.position = function(obj) {
  */
 buffers.GasCanBuffer.prototype.id = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? this.bb.readUint16(this.bb_pos + offset) : 0;
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -454,7 +463,7 @@ buffers.GasCanBuffer.addPosition = function(builder, positionOffset) {
  * @param {number} id
  */
 buffers.GasCanBuffer.addId = function(builder, id) {
-  builder.addFieldInt16(1, id, 0);
+  builder.addFieldInt32(1, id, 0);
 };
 
 /**
@@ -506,7 +515,7 @@ buffers.LaunchpadBuffer.getRootAsLaunchpadBuffer = function(bb, obj) {
  */
 buffers.LaunchpadBuffer.prototype.id = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readUint16(this.bb_pos + offset) : 0;
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -530,7 +539,7 @@ buffers.LaunchpadBuffer.startLaunchpadBuffer = function(builder) {
  * @param {number} id
  */
 buffers.LaunchpadBuffer.addId = function(builder, id) {
-  builder.addFieldInt16(0, id, 0);
+  builder.addFieldInt32(0, id, 0);
 };
 
 /**
@@ -590,7 +599,7 @@ buffers.WreckageBuffer.getRootAsWreckageBuffer = function(bb, obj) {
  */
 buffers.WreckageBuffer.prototype.id = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? this.bb.readUint16(this.bb_pos + offset) : 0;
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
 };
 
 /**
@@ -614,7 +623,7 @@ buffers.WreckageBuffer.startWreckageBuffer = function(builder) {
  * @param {number} id
  */
 buffers.WreckageBuffer.addId = function(builder, id) {
-  builder.addFieldInt16(0, id, 0);
+  builder.addFieldInt32(0, id, 0);
 };
 
 /**
@@ -889,6 +898,74 @@ buffers.JoinDataBuffer.endJoinDataBuffer = function(builder) {
 /**
  * @constructor
  */
+buffers.InfoBuffer = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {buffers.InfoBuffer}
+ */
+buffers.InfoBuffer.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {buffers.InfoBuffer=} obj
+ * @returns {buffers.InfoBuffer}
+ */
+buffers.InfoBuffer.getRootAsInfoBuffer = function(bb, obj) {
+  return (obj || new buffers.InfoBuffer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+buffers.InfoBuffer.prototype.msg = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+buffers.InfoBuffer.startInfoBuffer = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} msgOffset
+ */
+buffers.InfoBuffer.addMsg = function(builder, msgOffset) {
+  builder.addFieldOffset(0, msgOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+buffers.InfoBuffer.endInfoBuffer = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @constructor
+ */
 buffers.DeathBuffer = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -922,10 +999,42 @@ buffers.DeathBuffer.getRootAsDeathBuffer = function(bb, obj) {
 };
 
 /**
+ * @returns {number}
+ */
+buffers.DeathBuffer.prototype.score = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+buffers.DeathBuffer.prototype.level = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 buffers.DeathBuffer.startDeathBuffer = function(builder) {
-  builder.startObject(0);
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} score
+ */
+buffers.DeathBuffer.addScore = function(builder, score) {
+  builder.addFieldInt32(0, score, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} level
+ */
+buffers.DeathBuffer.addLevel = function(builder, level) {
+  builder.addFieldInt32(1, level, 0);
 };
 
 /**

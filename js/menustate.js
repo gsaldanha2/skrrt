@@ -13,12 +13,17 @@ export default class MenuState {
         this._tileImage = document.getElementById('tileImg');
         this._tileSize = 100;
         this._playButton = $('#playButton');
+
+        this._scoreLabel = $('#scoreLabel');
         this._serverSelect = $('#serverSelect');
+
+        this._bgImg = document.getElementById('bg');
 
         this._nickInput = $('#nickInput');
 
         this._servers = {
-            'US-CA': 'wss://skrrtio-server.herokuapp.com/',
+            // 'US-CA': 'ws://104.197.76.2:8080',
+            'US-CA': 'ws://localhost:8080',
         };
 
         this._leaderboardList = {
@@ -36,9 +41,19 @@ export default class MenuState {
 
         $('#loginArea').slideDown(1000);
         $('#infoArea').slideDown(1000);
+        $('#tutorialArea').slideDown(1000);
         $('#leaderboard').slideUp();
         $('#slowButton').slideUp();
         this._btnClicked = false;
+
+        this._showLastScore = () => {
+            if(stateManager.lastScore === undefined || stateManager.lastLevel === undefined) {
+                this._scoreLabel.hide();
+                return;
+            }
+            this._scoreLabel.text("You got to Level " + stateManager.lastLevel + " - " + stateManager.lastScore + "XP");
+            this._scoreLabel.show();
+        };
 
         this._connectToSelected = () => {
             stateManager.connect(this._servers[this._serverSelect.val()]);
@@ -63,12 +78,13 @@ export default class MenuState {
 
             $('#loginArea').slideUp();
             $('#infoArea').slideUp();
+            $('#tutorialArea').slideUp();
             $('#leaderboard').slideDown();
             if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
                 $('#slowButton').slideDown();
             }
-            stateManager.state = new PlayState(stateManager, this._nickInput.val());
             stateManager.animation = new FadeAnimation(stateManager.camera, 1000, true);
+            stateManager.state = new PlayState(stateManager, this._nickInput.val());
         });
 
         this._handleRecieveMsg = (msg) => {
@@ -117,6 +133,7 @@ export default class MenuState {
         if(stateManager.connection.readyState === 1) this._hasConnected();
         else stateManager.connection.setConnectionCallback(this._hasConnected);
         stateManager.connection.setMessageCallback(this._handleRecieveMsg);
+        this._showLastScore();
     }
 
 }

@@ -3,7 +3,7 @@
  */
 
 export function maxHPForLevel(lvl) {
-    return 30 * lvl;
+    return 10 * lvl + 20;
 }
 
 export function maxXPForLevel(lvl) {

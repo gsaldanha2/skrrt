@@ -33,7 +33,7 @@ window.onload = function() {
     stateManager.animation.onFinished(() => stateManager.state = new MenuState(stateManager));
 
     function tick() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.clearRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
         if (stateManager.state) stateManager.state.update();
         if(stateManager.animation) {
             stateManager.animation.update();
@@ -45,15 +45,15 @@ window.onload = function() {
     window.requestAnimationFrame(tick);
 
     function updateCanvasSize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth * window.devicePixelRatio;
+        canvas.height = window.innerHeight * window.devicePixelRatio;
         context.imageSmoothingEnabled = false;
 
         stateManager.camera.scale = Math.max(window.innerWidth * window.devicePixelRatio / 1680, window.innerHeight * window.devicePixelRatio / 945);
         context.setTransform(stateManager.camera.scale, 0, 0, stateManager.camera.scale, 0, 0);
 
         //scale menu
-        menuScale = Math.min(window.innerWidth / 940, window.innerHeight / 752);
+        menuScale = Math.min(window.innerWidth / 940, window.innerHeight /782);
         scaleDiv(menuWrapper, menuScale);
     }
 

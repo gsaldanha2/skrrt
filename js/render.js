@@ -6,7 +6,7 @@ import * as common from './common.js';
 import NumAbbr from 'number-abbreviate';
 
 const SECTION_SIZE = 360;
-const CHUNK_COUNT = 8;
+const CHUNK_COUNT = 10;
 const HP_BAR_LEN = 50;
 const SMALL_HP_BAR_HEIGHT = 12;
 const LARGE_BAR_HEIGHT = 16;
@@ -107,6 +107,8 @@ export default class Renderer {
         };
 
         this._renderPlayerExtras = (playerEntity) => {
+            this._context.fillStyle = 'rgba(0, 255, 0, 0.3)';
+            if(playerEntity.stats.spawnProtected) this._context.fillRect(-16, -24, 32, 48);
             this._context.fillStyle = 'rgba(255, 0, 0, 0.3)';
             if(playerEntity.stats.hurtFlag) this._context.fillRect(-16, -24, 32, 48);
             //reverse rotation
@@ -202,18 +204,16 @@ export default class Renderer {
             this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
             let yoffset = playerEntity.rotation === 180 || playerEntity.rotation === 0 ? -24 - (SMALL_HP_BAR_HEIGHT + 1) : -16 - (SMALL_HP_BAR_HEIGHT + 1);
             this._context.fillRect(-HP_BAR_LEN / 2, yoffset, HP_BAR_LEN, SMALL_HP_BAR_HEIGHT); //draw background bar
-            this._context.fillStyle = rtog(player.stats.health, common.maxHPForLevel(playerEntity.stats.level));
+            this._context.fillStyle = rtog(playerEntity.stats.health, common.maxHPForLevel(playerEntity.stats.level));
             let filledLength = playerEntity.stats.health / common.maxHPForLevel(playerEntity.stats.level);
             filledLength = Math.max(0, Math.min(filledLength, 1)) * HP_BAR_LEN;
             this._context.fillRect(-HP_BAR_LEN / 2, yoffset, filledLength, SMALL_HP_BAR_HEIGHT);
         };
 
-        this._drawOffmapTile = (x, y) => {
-            for(let k = 0; k < 3; k++) {
-                for(let p = 0; p < 3; p++) {
-                    this._context.drawImage(this._imageStorage['waterTile'], x + SECTION_SIZE*p, y + SECTION_SIZE*k, SECTION_SIZE, SECTION_SIZE);
-                }
-            }
+        this._drawOffmapTile = (x, y, rotation) => {
+            this._renderMapChunk(x, y, rotation);
+            this._context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            this._context.fillRect(x, y, SECTION_SIZE * 3, SECTION_SIZE * 3);
         };
 
         this._renderLeaderboard = (myInfo, leaderboard) => {
@@ -234,7 +234,7 @@ export default class Renderer {
                     if(x + camera.x < -1 || y + camera.y < -1
                             ||(x + camera.x + camera.swidth() / 2) > SECTION_SIZE * 3 * CHUNK_COUNT
                             || (y + camera.y + camera.sheight() / 2) > SECTION_SIZE * 3 * CHUNK_COUNT) {
-                        this._drawOffmapTile(x, y);
+                        this._drawOffmapTile(x, y, -player.rotation * Math.PI / 180);
                         continue;
                     }
                     this._renderMapChunk(x, y, -player.rotation * Math.PI / 180);
@@ -286,7 +286,24 @@ export default class Renderer {
             }
         };
 
+        this._renderGasWarning = () => {
+            if(this._player.stats.gasLevel < 30) {
+                this._setSmallFontProperties(16);
+                this._context.fillStyle = '#cc0000';
+                this._context.fillText('Running low on gas!', camera.swidth() / 2, camera.sheight() / 2 - 60);
+            }
+        };
+
+        this._renderOOBWarning = () => {
+            if (this._player.x > SECTION_SIZE * 3 * CHUNK_COUNT || this._player.y > SECTION_SIZE * 3 * CHUNK_COUNT || this._player.x < 0 || this._player.y < 0){
+                this._setSmallFontProperties(16);
+                this._context.fillStyle = '#cc0000';
+                this._context.fillText('Out of Bounds! Return before you run out of gas!', camera.swidth() / 2, camera.sheight() / 2 - 100);
+            }
+        };
+
         this.render = (entities, leaderboard, myInfo, player) => {
+            // const startTime = Date.now();
             this._player = player;
             this._renderMap(player);
             this._renderEntities(entities);
@@ -295,6 +312,9 @@ export default class Renderer {
             this._renderLeaderboard(myInfo, leaderboard);
             this._renderMinimap(entities, player);
             this._renderGasLevel(player.stats.gasLevel);
+            this._renderOOBWarning();
+            this._renderGasWarning();
+            // console.log(Date.now() - startTime);
         };
 
         this.centerCameraOnPlayer = (player) => {

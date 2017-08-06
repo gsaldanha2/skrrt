@@ -84,6 +84,7 @@ export default class Game {
         this._preventPacketBackup = () => {
             this._interpData.endUpdate = null;
             this._packetQueue = [];
+            console.log('flush');
         };
 
         this._setupStartUpdateVelocities = () => {
@@ -110,9 +111,8 @@ export default class Game {
             this._interpData.renderTime = Date.now() - LERP_MS;
             if(this._interpData.startUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].clientTimeMs <= this._interpData.renderTime) {
                 this._interpData.startUpdate = this._packetQueue.shift();
-                if(this._packetQueue[0].clientTimeMs <= this._interpData.renderTime) this._interpData.startUpdate = null; //maybe remove
             }
-            if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].clientTimeMs >= this._interpData.renderTime) {
+            if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0) {
                 this._interpData.endUpdate = this._packetQueue.shift();
                 this._setupStartUpdateVelocities();
                 this.leaderboard = this._interpData.startUpdate.leaderboard;
@@ -137,6 +137,7 @@ export default class Game {
         };
 
         this.updateEntities = () => {
+            const startTime = Date.now();
             this._loadStartEndPackets();
 
             if (this._interpData.startUpdate === null) {
@@ -148,6 +149,7 @@ export default class Game {
             } else {
                 this._interpolate();
             }
+            if(Date.now() - startTime > 50) console.log(Date.now() - startTime);
         };
 
         this.cleanup = () => {
@@ -203,7 +205,8 @@ export default class Game {
                 xp: entityBuffer.stats().xp(),
                 level: entityBuffer.stats().level(),
                 health: entityBuffer.stats().health(),
-                hurtFlag: entityBuffer.stats().hurtFlag()
+                hurtFlag: entityBuffer.stats().hurtFlag(),
+                spawnProtected: entityBuffer.stats().spawnProtected()
             };
             player.name = entityBuffer.name();
             return player;

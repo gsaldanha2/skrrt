@@ -31,17 +31,28 @@ export default class PlayState {
             return builder.asUint8Array();
         };
 
+        this._rejectConnection = () => {
+            alert("This server has reached the max limit of players");
+            this._onDeath();
+        };
+
         this._handleRecieveMsg = (msg) => {
             let bytes = new Uint8Array(msg.data);
             let buf = new flatbuffers.ByteBuffer(bytes);
             let msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
-            if(msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) this.game.handleRecieveSnapshot(msgBuf);
-            else if(msgBuf.messageType() === buffers.MessageUnion.DeathBuffer) this._onDeath();
+            if (msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) this.game.handleRecieveSnapshot(msgBuf);
+            else if (msgBuf.messageType() === buffers.MessageUnion.DeathBuffer) this._onDeath(msgBuf.message(new buffers.DeathBuffer()));
+            else if (msgBuf.messageType() === buffers.MessageUnion.InfoBuffer && msgBuf.message(new buffers.InfoBuffer()).msg() === 'reject') {
+                this._rejectConnection();
+            }
         };
 
-        this._onDeath = () => {
+        this._onDeath = (deathBuf) => {
             clearInterval(this._inputIntervalId);
             this.game.cleanup();
+
+            stateManager.lastScore = deathBuf.score();
+            stateManager.lastLevel = deathBuf.level();
 
             //clear callbacks
             stateManager.connection.setConnectionCallback(() => {});

@@ -2,6 +2,18 @@
 <html lang="en">
 <head>
 
+    <meta charset="UTF-8">
+    <title>Skrrt.io</title>
+
+    <meta name="description" content="Destroy other players and dominate the leaderboard in this new online multiplayer racing game!" />
+    <meta property="og:description" content="Destroy other players and dominate the leaderboard in this new online multiplayer racing game!" />
+    <meta name="keywords" content="game, games, web game, html5, fun, flash, skrrt, skrrtio, io game, racing, car">
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Skrrt.io" />
+    <meta property="og:url" content="http://skrrtio.herokuapp.com/" />
+    <meta property="og:site_name" content="Skrrt.io" />
+
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id"
           content="252744835439-a3m7uf7ipjql5khmrg2varr10rnghf00.apps.googleusercontent.com">
@@ -9,8 +21,6 @@
 
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?v=2" />
     <link rel="stylesheet" href="main.css">
-    <meta charset="UTF-8">
-    <title>skrrt.io</title>
 
     <img src="img/playerSpritesheet.png" style="display: none;" id="playerSpritesheet"/>
 
@@ -23,6 +33,16 @@
     <img src="img/road.png" style="display: none;" id="road"/>
     <img src="img/intersection.png" style="display: none;" id="intersection"/>
 
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-43760707-2', 'auto');
+        ga('send', 'pageview');
+
+    </script>
 </head>
 <body>
 
@@ -32,16 +52,18 @@
 
         <div class="infoArea" id="infoArea">
             <h2 style="width: 100%; text-align: center;">How To Play</h2>
-            <ul style="display: block; position:relative;">
-                <li>Consume gas cans to gain points</li>
+            <ul style="display: block; position:relative; font-size: 14px;">
+                <li>Consume gas cans or hit green tailed cars to gain points</li>
+                <li>Don't run out of gas!</li>
+                <li>Avoid cars with red tails - they can destroy you</li>
+                <li>Avoid wreckage when people die</li>
                 <li>Shift lanes or turn at an intersection with the arrow keys or by swiping (mobile)</li>
                 <li>Slow down using spacebar or the slow button (mobile)</li>
-                <li>Hit cars with green tails to gain points</li>
-                <li>Avoid cars with red tails - they can destroy you</li>
-                <li>Blue tails are friendlies - you will bounce off them</li>
-                <li>Avoid wreckage when people die</li>
-                <li>Don't fall into the ocean!</li>
+                <li>Get to the top of the leaderboard!</li>
             </ul>
+
+            <img src="img/howtogif.gif" id="tutorialGif"/>
+
 
             <iframe class="facebook-like"
                     src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fskrrt.io&width=106&layout=button_count&action=like&size=small&show_faces=true&share=true&height=46&appId"
@@ -51,6 +73,7 @@
                data-hashtags="skrrtio" data-show-count="false">Tweet</a>
             <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
+            <label style="display: block; width: 100%; text-align: center; margin-top: 8px;">Sign in to save a high score:</label>
             <div class="g-signin2" id="googleSignIn" data-onsuccess="onSignIn" data-prompt="select_account" data-longtitle="true" data-width="190" data-height="40"></div>
             <button class="g-signout" id="g-signout">Sign Out</button>
             <button class="feedback" onclick="_urq.push(['Feedback_Open'])">Feedback/Bug</button>
@@ -62,8 +85,10 @@
                 <span style="color: #ffffff;display: inline-block;">SKRRT</span><span
                     style="color:#cc0000;display: inline-block;">.IO</span>
             </div>
+
             <label class="nickLabel">Your Name:</label>
             <input placeholder="Nickname" class="nickInput" id="nickInput" maxlength="15">
+            <label class="scoreLabel" id="scoreLabel">Your last score was: </label>
 
             <div class="serverSelectWrapper">
                 <select id="serverSelect">
@@ -75,7 +100,7 @@
 
 
             <div class="alltime-leaderboard" id="alltime-leaderboard">
-                <label style="color:white;font-size:16px;margin-bottom: 4px">-- Leaderboard --</label>
+                <label style="color:white;font-size:16px;margin-bottom: 4px">-- Highest Scores --</label>
                 <ul style="list-style-type:none;color:white;font-size:14px;padding:0;margin:0;">
                     <li id="1p"></li>
                     <li id="2p"></li>
@@ -90,6 +115,7 @@
                 </ul>
             </div>
         </div>
+
     </div>
 
     <div class="leaderboard" id="leaderboard">

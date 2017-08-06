@@ -128,7 +128,7 @@ var FadeAnimation = function FadeAnimation(camera, duration, reversed) {
     };
 
     this.isFinished = function () {
-        return _this._elapsedTime >= _this._duration;
+        return !reversed && _this._elapsedTime >= _this._duration || reversed && _this._elapsedTime <= 0;
     };
 
     this.onFinished = function (callback) {
@@ -204,16 +204,26 @@ var PlayState = function PlayState(stateManager, playerName) {
         return builder.asUint8Array();
     };
 
+    this._rejectConnection = function () {
+        alert("This server has reached the max limit of players");
+        _this._onDeath();
+    };
+
     this._handleRecieveMsg = function (msg) {
         var bytes = new Uint8Array(msg.data);
         var buf = new flatbuffers.ByteBuffer(bytes);
         var msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
-        if (msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) _this.game.handleRecieveSnapshot(msgBuf);else if (msgBuf.messageType() === buffers.MessageUnion.DeathBuffer) _this._onDeath();
+        if (msgBuf.messageType() === buffers.MessageUnion.SnapshotBuffer) _this.game.handleRecieveSnapshot(msgBuf);else if (msgBuf.messageType() === buffers.MessageUnion.DeathBuffer) _this._onDeath(msgBuf.message(new buffers.DeathBuffer()));else if (msgBuf.messageType() === buffers.MessageUnion.InfoBuffer && msgBuf.message(new buffers.InfoBuffer()).msg() === 'reject') {
+            _this._rejectConnection();
+        }
     };
 
-    this._onDeath = function () {
+    this._onDeath = function (deathBuf) {
         clearInterval(_this._inputIntervalId);
         _this.game.cleanup();
+
+        stateManager.lastScore = deathBuf.score();
+        stateManager.lastLevel = deathBuf.level();
 
         //clear callbacks
         stateManager.connection.setConnectionCallback(function () {});
@@ -421,12 +431,17 @@ var MenuState = function MenuState(stateManager) {
     this._tileImage = document.getElementById('tileImg');
     this._tileSize = 100;
     this._playButton = $('#playButton');
+
+    this._scoreLabel = $('#scoreLabel');
     this._serverSelect = $('#serverSelect');
+
+    this._bgImg = document.getElementById('bg');
 
     this._nickInput = $('#nickInput');
 
     this._servers = {
-        'US-CA': 'wss://skrrtio-server.herokuapp.com/'
+        // 'US-CA': 'ws://104.197.76.2:8080',
+        'US-CA': 'ws://localhost:8080'
     };
 
     this._leaderboardList = {
@@ -444,9 +459,19 @@ var MenuState = function MenuState(stateManager) {
 
     $('#loginArea').slideDown(1000);
     $('#infoArea').slideDown(1000);
+    $('#tutorialArea').slideDown(1000);
     $('#leaderboard').slideUp();
     $('#slowButton').slideUp();
     this._btnClicked = false;
+
+    this._showLastScore = function () {
+        if (stateManager.lastScore === undefined || stateManager.lastLevel === undefined) {
+            _this._scoreLabel.hide();
+            return;
+        }
+        _this._scoreLabel.text("You got to Level " + stateManager.lastLevel + " - " + stateManager.lastScore + "XP");
+        _this._scoreLabel.show();
+    };
 
     this._connectToSelected = function () {
         stateManager.connect(_this._servers[_this._serverSelect.val()]);
@@ -475,12 +500,13 @@ var MenuState = function MenuState(stateManager) {
 
         $('#loginArea').slideUp();
         $('#infoArea').slideUp();
+        $('#tutorialArea').slideUp();
         $('#leaderboard').slideDown();
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             $('#slowButton').slideDown();
         }
-        stateManager.state = new _playstate2.default(stateManager, _this._nickInput.val());
         stateManager.animation = new _menufadeanimation2.default(stateManager.camera, 1000, true);
+        stateManager.state = new _playstate2.default(stateManager, _this._nickInput.val());
     });
 
     this._handleRecieveMsg = function (msg) {
@@ -528,6 +554,7 @@ var MenuState = function MenuState(stateManager) {
 
     if (stateManager.connection.readyState === 1) this._hasConnected();else stateManager.connection.setConnectionCallback(this._hasConnected);
     stateManager.connection.setMessageCallback(this._handleRecieveMsg);
+    this._showLastScore();
 };
 
 exports.default = MenuState;
@@ -593,7 +620,7 @@ window.onload = function () {
     });
 
     function tick() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.clearRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
         if (stateManager.state) stateManager.state.update();
         if (stateManager.animation) {
             stateManager.animation.update();
@@ -605,15 +632,15 @@ window.onload = function () {
     window.requestAnimationFrame(tick);
 
     function updateCanvasSize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth * window.devicePixelRatio;
+        canvas.height = window.innerHeight * window.devicePixelRatio;
         context.imageSmoothingEnabled = false;
 
         stateManager.camera.scale = Math.max(window.innerWidth * window.devicePixelRatio / 1680, window.innerHeight * window.devicePixelRatio / 945);
         context.setTransform(stateManager.camera.scale, 0, 0, stateManager.camera.scale, 0, 0);
 
         //scale menu
-        menuScale = Math.min(window.innerWidth / 940, window.innerHeight / 752);
+        menuScale = Math.min(window.innerWidth / 940, window.innerHeight / 782);
         scaleDiv(menuWrapper, menuScale);
     }
 
@@ -750,6 +777,7 @@ var Game = function () {
         this._preventPacketBackup = function () {
             _this._interpData.endUpdate = null;
             _this._packetQueue = [];
+            console.log('flush');
         };
 
         this._setupStartUpdateVelocities = function () {
@@ -819,9 +847,8 @@ var Game = function () {
             _this._interpData.renderTime = Date.now() - LERP_MS;
             if (_this._interpData.startUpdate === null && _this._packetQueue.length > 0 && _this._packetQueue[0].clientTimeMs <= _this._interpData.renderTime) {
                 _this._interpData.startUpdate = _this._packetQueue.shift();
-                if (_this._packetQueue[0].clientTimeMs <= _this._interpData.renderTime) _this._interpData.startUpdate = null; //maybe remove
             }
-            if (_this._interpData.startUpdate !== null && _this._interpData.endUpdate === null && _this._packetQueue.length > 0 && _this._packetQueue[0].clientTimeMs >= _this._interpData.renderTime) {
+            if (_this._interpData.startUpdate !== null && _this._interpData.endUpdate === null && _this._packetQueue.length > 0) {
                 _this._interpData.endUpdate = _this._packetQueue.shift();
                 _this._setupStartUpdateVelocities();
                 _this.leaderboard = _this._interpData.startUpdate.leaderboard;
@@ -868,6 +895,7 @@ var Game = function () {
         };
 
         this.updateEntities = function () {
+            var startTime = Date.now();
             _this._loadStartEndPackets();
 
             if (_this._interpData.startUpdate === null) {
@@ -879,6 +907,7 @@ var Game = function () {
             } else {
                 _this._interpolate();
             }
+            if (Date.now() - startTime > 50) console.log(Date.now() - startTime);
         };
 
         this.cleanup = function () {
@@ -934,7 +963,8 @@ var Game = function () {
                 xp: entityBuffer.stats().xp(),
                 level: entityBuffer.stats().level(),
                 health: entityBuffer.stats().health(),
-                hurtFlag: entityBuffer.stats().hurtFlag()
+                hurtFlag: entityBuffer.stats().hurtFlag(),
+                spawnProtected: entityBuffer.stats().spawnProtected()
             };
             player.name = entityBuffer.name();
             return player;
@@ -1016,7 +1046,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                                                                                                                                            */
 
 var SECTION_SIZE = 360;
-var CHUNK_COUNT = 8;
+var CHUNK_COUNT = 10;
 var HP_BAR_LEN = 50;
 var SMALL_HP_BAR_HEIGHT = 12;
 var LARGE_BAR_HEIGHT = 16;
@@ -1118,6 +1148,8 @@ var Renderer = function Renderer(camera) {
     };
 
     this._renderPlayerExtras = function (playerEntity) {
+        _this._context.fillStyle = 'rgba(0, 255, 0, 0.3)';
+        if (playerEntity.stats.spawnProtected) _this._context.fillRect(-16, -24, 32, 48);
         _this._context.fillStyle = 'rgba(255, 0, 0, 0.3)';
         if (playerEntity.stats.hurtFlag) _this._context.fillRect(-16, -24, 32, 48);
         //reverse rotation
@@ -1231,18 +1263,16 @@ var Renderer = function Renderer(camera) {
         _this._context.fillStyle = 'rgba(0, 0, 0, 0.3)';
         var yoffset = playerEntity.rotation === 180 || playerEntity.rotation === 0 ? -24 - (SMALL_HP_BAR_HEIGHT + 1) : -16 - (SMALL_HP_BAR_HEIGHT + 1);
         _this._context.fillRect(-HP_BAR_LEN / 2, yoffset, HP_BAR_LEN, SMALL_HP_BAR_HEIGHT); //draw background bar
-        _this._context.fillStyle = rtog(player.stats.health, common.maxHPForLevel(playerEntity.stats.level));
+        _this._context.fillStyle = rtog(playerEntity.stats.health, common.maxHPForLevel(playerEntity.stats.level));
         var filledLength = playerEntity.stats.health / common.maxHPForLevel(playerEntity.stats.level);
         filledLength = Math.max(0, Math.min(filledLength, 1)) * HP_BAR_LEN;
         _this._context.fillRect(-HP_BAR_LEN / 2, yoffset, filledLength, SMALL_HP_BAR_HEIGHT);
     };
 
-    this._drawOffmapTile = function (x, y) {
-        for (var k = 0; k < 3; k++) {
-            for (var p = 0; p < 3; p++) {
-                _this._context.drawImage(_this._imageStorage['waterTile'], x + SECTION_SIZE * p, y + SECTION_SIZE * k, SECTION_SIZE, SECTION_SIZE);
-            }
-        }
+    this._drawOffmapTile = function (x, y, rotation) {
+        _this._renderMapChunk(x, y, rotation);
+        _this._context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        _this._context.fillRect(x, y, SECTION_SIZE * 3, SECTION_SIZE * 3);
     };
 
     this._renderLeaderboard = function (myInfo, leaderboard) {
@@ -1283,7 +1313,7 @@ var Renderer = function Renderer(camera) {
                 var x = startx + j * SECTION_SIZE * 3;
                 var y = starty + i * SECTION_SIZE * 3;
                 if (x + camera.x < -1 || y + camera.y < -1 || x + camera.x + camera.swidth() / 2 > SECTION_SIZE * 3 * CHUNK_COUNT || y + camera.y + camera.sheight() / 2 > SECTION_SIZE * 3 * CHUNK_COUNT) {
-                    _this._drawOffmapTile(x, y);
+                    _this._drawOffmapTile(x, y, -player.rotation * Math.PI / 180);
                     continue;
                 }
                 _this._renderMapChunk(x, y, -player.rotation * Math.PI / 180);
@@ -1378,7 +1408,24 @@ var Renderer = function Renderer(camera) {
         }
     };
 
+    this._renderGasWarning = function () {
+        if (_this._player.stats.gasLevel < 30) {
+            _this._setSmallFontProperties(16);
+            _this._context.fillStyle = '#cc0000';
+            _this._context.fillText('Running low on gas!', camera.swidth() / 2, camera.sheight() / 2 - 60);
+        }
+    };
+
+    this._renderOOBWarning = function () {
+        if (_this._player.x > SECTION_SIZE * 3 * CHUNK_COUNT || _this._player.y > SECTION_SIZE * 3 * CHUNK_COUNT || _this._player.x < 0 || _this._player.y < 0) {
+            _this._setSmallFontProperties(16);
+            _this._context.fillStyle = '#cc0000';
+            _this._context.fillText('Out of Bounds! Return before you run out of gas!', camera.swidth() / 2, camera.sheight() / 2 - 100);
+        }
+    };
+
     this.render = function (entities, leaderboard, myInfo, player) {
+        // const startTime = Date.now();
         _this._player = player;
         _this._renderMap(player);
         _this._renderEntities(entities);
@@ -1387,6 +1434,9 @@ var Renderer = function Renderer(camera) {
         _this._renderLeaderboard(myInfo, leaderboard);
         _this._renderMinimap(entities, player);
         _this._renderGasLevel(player.stats.gasLevel);
+        _this._renderOOBWarning();
+        _this._renderGasWarning();
+        // console.log(Date.now() - startTime);
     };
 
     this.centerCameraOnPlayer = function (player) {
@@ -1414,7 +1464,7 @@ exports.maxXPForLevel = maxXPForLevel;
  */
 
 function maxHPForLevel(lvl) {
-    return 30 * lvl;
+    return 10 * lvl + 20;
 }
 
 function maxXPForLevel(lvl) {

@@ -50,7 +50,7 @@ export default class FadeAnimation {
         };
 
         this.isFinished = () => {
-            return this._elapsedTime >= this._duration;
+            return (!reversed && this._elapsedTime >= this._duration) || (reversed && this._elapsedTime <= 0);
         };
 
         this.onFinished = (callback) => {
