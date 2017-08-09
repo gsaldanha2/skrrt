@@ -7,6 +7,8 @@ let profile = undefined;
 
 window.onload = function() {
 
+    console.log("------------ WELCOME TO SKRRT.IO ------------");
+
     let canvas = document.getElementById('canvas');
     let context = canvas.getContext('2d');
     let menuScale = 1;
@@ -28,6 +30,10 @@ window.onload = function() {
         if(stateManager.connection) stateManager.connection.close();
         stateManager.connection = new Connection(address);
         stateManager.connection.start();
+    };
+    stateManager.switchState = (state) => {
+        stateManager.state = state;
+        updateCanvasSize();
     };
     stateManager.animation = new FadeAnimation(stateManager.camera, 1000, false);
     stateManager.animation.onFinished(() => stateManager.state = new MenuState(stateManager));
@@ -57,10 +63,6 @@ window.onload = function() {
         scaleDiv(menuWrapper, menuScale);
     }
 
-    function round(value, decimals) {
-        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
-    }
-
     function scaleDiv(d, scale) {
         let s = `translate(-50%, -0%) scale(${scale})`;
         d.style.transform = s;
@@ -72,4 +74,5 @@ window.onload = function() {
 
     updateCanvasSize();
     window.onresize = updateCanvasSize;
+    window.addEventListener("orientationchange", updateCanvasSize);
 };

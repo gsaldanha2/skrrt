@@ -17,13 +17,11 @@ export default class MenuState {
         this._scoreLabel = $('#scoreLabel');
         this._serverSelect = $('#serverSelect');
 
-        this._bgImg = document.getElementById('bg');
-
         this._nickInput = $('#nickInput');
 
         this._servers = {
-            // 'US-CA': 'ws://104.197.76.2:8080',
-            'US-CA': 'ws://localhost:8080',
+            'US-CA': 'ws://104.197.76.2:8080'
+            // 'US-CA': 'ws://localhost:4000'
         };
 
         $('#loginArea').slideDown(1000);
@@ -62,6 +60,7 @@ export default class MenuState {
                 return;
             }
             this._btnClicked = true;
+            this._nickInput.blur();
 
             $('#loginArea').slideUp();
             $('#infoArea').slideUp();
@@ -71,7 +70,7 @@ export default class MenuState {
                 $('#slowButton').slideDown();
             }
             stateManager.animation = new FadeAnimation(stateManager.camera, 1000, true);
-            stateManager.state = new PlayState(stateManager, this._nickInput.val());
+            stateManager.switchState(new PlayState(stateManager, this._nickInput.val()));
         });
 
         this._handleRecieveMsg = (msg) => {

@@ -230,7 +230,7 @@ var PlayState = function PlayState(stateManager, playerName) {
 
         stateManager.animation = new _menufadeanimation2.default(stateManager.camera, 2000, false);
         stateManager.animation.onFinished(function () {
-            return stateManager.state = new _menustate2.default(stateManager);
+            return stateManager.switchState(new _menustate2.default(stateManager));
         });
     };
 
@@ -433,13 +433,11 @@ var MenuState = function MenuState(stateManager) {
     this._scoreLabel = $('#scoreLabel');
     this._serverSelect = $('#serverSelect');
 
-    this._bgImg = document.getElementById('bg');
-
     this._nickInput = $('#nickInput');
 
     this._servers = {
-        // 'US-CA': 'ws://104.197.76.2:8080',
-        'US-CA': 'ws://localhost:8080'
+        'US-CA': 'ws://104.197.76.2:8080'
+        // 'US-CA': 'ws://localhost:4000'
     };
 
     $('#loginArea').slideDown(1000);
@@ -482,6 +480,7 @@ var MenuState = function MenuState(stateManager) {
             return;
         }
         _this._btnClicked = true;
+        _this._nickInput.blur();
 
         $('#loginArea').slideUp();
         $('#infoArea').slideUp();
@@ -491,7 +490,7 @@ var MenuState = function MenuState(stateManager) {
             $('#slowButton').slideDown();
         }
         stateManager.animation = new _menufadeanimation2.default(stateManager.camera, 1000, true);
-        stateManager.state = new _playstate2.default(stateManager, _this._nickInput.val());
+        stateManager.switchState(new _playstate2.default(stateManager, _this._nickInput.val()));
     });
 
     this._handleRecieveMsg = function (msg) {
@@ -560,6 +559,8 @@ var profile = undefined;
 
 window.onload = function () {
 
+    console.log("------------ WELCOME TO SKRRT.IO ------------");
+
     var canvas = document.getElementById('canvas');
     var context = canvas.getContext('2d');
     var menuScale = 1;
@@ -585,6 +586,10 @@ window.onload = function () {
         if (stateManager.connection) stateManager.connection.close();
         stateManager.connection = new _connection2.default(address);
         stateManager.connection.start();
+    };
+    stateManager.switchState = function (state) {
+        stateManager.state = state;
+        updateCanvasSize();
     };
     stateManager.animation = new _menufadeanimation2.default(stateManager.camera, 1000, false);
     stateManager.animation.onFinished(function () {
@@ -616,10 +621,6 @@ window.onload = function () {
         scaleDiv(menuWrapper, menuScale);
     }
 
-    function round(value, decimals) {
-        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
-    }
-
     function scaleDiv(d, scale) {
         var s = 'translate(-50%, -0%) scale(' + scale + ')';
         d.style.transform = s;
@@ -631,6 +632,7 @@ window.onload = function () {
 
     updateCanvasSize();
     window.onresize = updateCanvasSize;
+    window.addEventListener("orientationchange", updateCanvasSize);
 };
 
 /***/ }),
@@ -1412,8 +1414,8 @@ var Renderer = function Renderer(camera) {
     };
 
     this.centerCameraOnPlayer = function (player) {
-        camera.x = player.x - camera.swidth() / 2;
-        camera.y = player.y - camera.sheight() / 2;
+        camera.x = Math.floor(player.x - camera.swidth() / 2);
+        camera.y = Math.floor(player.y - camera.sheight() / 2);
     };
 };
 

@@ -58,7 +58,7 @@ export default class PlayState {
             stateManager.connection.setDisconnectionCallback(() => {});
 
             stateManager.animation = new FadeAnimation(stateManager.camera, 2000, false);
-            stateManager.animation.onFinished(() => stateManager.state = new MenuState(stateManager));
+            stateManager.animation.onFinished(() => stateManager.switchState(new MenuState(stateManager)));
         };
 
         this._setup = () => {

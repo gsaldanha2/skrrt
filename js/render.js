@@ -318,8 +318,8 @@ export default class Renderer {
         };
 
         this.centerCameraOnPlayer = (player) => {
-            camera.x = player.x - camera.swidth() / 2;
-            camera.y = player.y - camera.sheight() / 2;
+            camera.x = Math.floor(player.x - camera.swidth() / 2);
+            camera.y = Math.floor(player.y - camera.sheight() / 2);
         };
     }
 
