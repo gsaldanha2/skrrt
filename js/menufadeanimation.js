@@ -5,8 +5,8 @@
 export default class FadeAnimation {
 
     constructor(camera, duration, reversed) {
-        this._canvas = document.getElementById('canvas');
-        this._context = this._canvas.getContext('2d');
+        this._bufferCanvas = document.getElementById('canvas');
+        this._bufferCtx = this._bufferCanvas.getContext('2d');
         this._duration = duration;
         this._elapsedTime = 0;
         this._tileSize = 100;
@@ -39,14 +39,14 @@ export default class FadeAnimation {
             for(let row = 0; row < Math.floor(camera.swidth() / this._tileSize) + 1; row++) {
                 for (let col = 0; col < Math.floor(camera.sheight() / this._tileSize) + 1; col++) {
                     if((row % 2 === 0 && col % 2 === 0) || (row % 2 === 1 && col % 2 === 1)) {
-                        this._context.globalAlpha = Math.max(Math.min(this._elapsedTime / this._duration, 1), 0);
+                        this._bufferCtx.globalAlpha = Math.max(Math.min(this._elapsedTime / this._duration, 1), 0);
                     } else {
-                        this._context.globalAlpha = Math.max(Math.min((this._elapsedTime - this._duration / 3) / (this._duration / 3), 1), 0);
+                        this._bufferCtx.globalAlpha = Math.max(Math.min((this._elapsedTime - this._duration / 3) / (this._duration / 3), 1), 0);
                     }
-                    this._context.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize+1, this._tileSize+1);
+                    this._bufferCtx.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize+1, this._tileSize+1);
                 }
             }
-            this._context.globalAlpha = 1;
+            this._bufferCtx.globalAlpha = 1;
         };
 
         this.isFinished = () => {

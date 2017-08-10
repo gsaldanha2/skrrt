@@ -23,8 +23,8 @@ window.onload = function() {
         x: 0,
         y: 0,
     };
-    stateManager.camera.swidth = () => { return canvas.width / stateManager.camera.scale; };
-    stateManager.camera.sheight = () => { return canvas.height / stateManager.camera.scale; };
+    stateManager.camera.swidth = () => { return Math.floor(canvas.width / stateManager.camera.scale); };
+    stateManager.camera.sheight = () => { return Math.floor(canvas.height / stateManager.camera.scale); };
 
     stateManager.connect = (address) => {
         if(stateManager.connection) stateManager.connection.close();
@@ -38,17 +38,23 @@ window.onload = function() {
     stateManager.animation = new FadeAnimation(stateManager.camera, 1000, false);
     stateManager.animation.onFinished(() => stateManager.state = new MenuState(stateManager));
 
-    function tick() {
-        context.clearRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
+    function update() {
         if (stateManager.state) stateManager.state.update();
+    }
+
+    function render() {
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
+        if (stateManager.state) stateManager.state.render();
         if(stateManager.animation) {
             stateManager.animation.update();
             if(stateManager.animation.isFinished()) stateManager.animation = null;
         }
-        window.requestAnimationFrame(tick);
+        window.requestAnimationFrame(render);
     }
 
-    window.requestAnimationFrame(tick);
+    setInterval(update, 1000/60);
+    window.requestAnimationFrame(render);
 
     function updateCanvasSize() {
         canvas.width = window.innerWidth * window.devicePixelRatio;

@@ -44,7 +44,6 @@ export default class Renderer {
             'gascan': document.getElementById('gasCanImg'),
             'wreckage': document.getElementById('wreckageImg'),
             'launchpad': document.getElementById('launchpadImg'),
-            'waterTile': document.getElementById('waterImg'),
             'road': document.getElementById('road'),
             'grass': document.getElementById('grass'),
             'intersection': document.getElementById('intersection'),
@@ -63,7 +62,7 @@ export default class Renderer {
             10: $("#10"),
             11: $("#11")
         };
-        
+
         this._imageForEntity = (entity) => {
             switch(entity.type) {
                 case buffers.EntityUnion.PlayerBuffer:
@@ -319,7 +318,7 @@ export default class Renderer {
 
         this.centerCameraOnPlayer = (player) => {
             camera.x = Math.floor(player.x - camera.swidth() / 2);
-            camera.y = Math.floor(player.y - camera.sheight() / 2);
+            camera.y = Math.round(player.y - camera.sheight() / 2);
         };
     }
 

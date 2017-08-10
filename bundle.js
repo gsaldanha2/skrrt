@@ -85,8 +85,8 @@ var FadeAnimation = function FadeAnimation(camera, duration, reversed) {
 
     _classCallCheck(this, FadeAnimation);
 
-    this._canvas = document.getElementById('canvas');
-    this._context = this._canvas.getContext('2d');
+    this._bufferCanvas = document.getElementById('canvas');
+    this._bufferCtx = this._bufferCanvas.getContext('2d');
     this._duration = duration;
     this._elapsedTime = 0;
     this._tileSize = 100;
@@ -117,14 +117,14 @@ var FadeAnimation = function FadeAnimation(camera, duration, reversed) {
         for (var row = 0; row < Math.floor(camera.swidth() / _this._tileSize) + 1; row++) {
             for (var col = 0; col < Math.floor(camera.sheight() / _this._tileSize) + 1; col++) {
                 if (row % 2 === 0 && col % 2 === 0 || row % 2 === 1 && col % 2 === 1) {
-                    _this._context.globalAlpha = Math.max(Math.min(_this._elapsedTime / _this._duration, 1), 0);
+                    _this._bufferCtx.globalAlpha = Math.max(Math.min(_this._elapsedTime / _this._duration, 1), 0);
                 } else {
-                    _this._context.globalAlpha = Math.max(Math.min((_this._elapsedTime - _this._duration / 3) / (_this._duration / 3), 1), 0);
+                    _this._bufferCtx.globalAlpha = Math.max(Math.min((_this._elapsedTime - _this._duration / 3) / (_this._duration / 3), 1), 0);
                 }
-                _this._context.drawImage(_this._tileImage, row * _this._tileSize, col * _this._tileSize, _this._tileSize + 1, _this._tileSize + 1);
+                _this._bufferCtx.drawImage(_this._tileImage, row * _this._tileSize, col * _this._tileSize, _this._tileSize + 1, _this._tileSize + 1);
             }
         }
-        _this._context.globalAlpha = 1;
+        _this._bufferCtx.globalAlpha = 1;
     };
 
     this.isFinished = function () {
@@ -249,6 +249,9 @@ var PlayState = function PlayState(stateManager, playerName) {
 
     this.update = function () {
         _this.game.updateEntities();
+    };
+
+    this.render = function () {
         if (_this.game.player !== null) {
             _this.renderer.centerCameraOnPlayer(_this.game.player);
             _this.renderer.render(_this.game.entities, _this.game.leaderboard, _this.game.myInfo, _this.game.player);
@@ -424,8 +427,8 @@ var MenuState = function MenuState(stateManager) {
 
     _classCallCheck(this, MenuState);
 
-    this._canvas = document.getElementById('canvas');
-    this._context = this._canvas.getContext('2d');
+    this._bufferCanvas = document.getElementById('canvas');
+    this._bufferCtx = this._bufferCanvas.getContext('2d');
     this._tileImage = document.getElementById('tileImg');
     this._tileSize = 100;
     this._playButton = $('#playButton');
@@ -502,10 +505,11 @@ var MenuState = function MenuState(stateManager) {
             _this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
         }
     };
-    this.update = function () {
+    this.update = function () {};
+    this.render = function () {
         for (var row = 0; row < Math.floor(stateManager.camera.swidth() / _this._tileSize) + 1; row++) {
             for (var col = 0; col < Math.floor(stateManager.camera.sheight() / _this._tileSize) + 1; col++) {
-                _this._context.drawImage(_this._tileImage, row * _this._tileSize, col * _this._tileSize, _this._tileSize + 1, _this._tileSize + 1);
+                _this._bufferCtx.drawImage(_this._tileImage, row * _this._tileSize, col * _this._tileSize, _this._tileSize + 1, _this._tileSize + 1);
             }
         }
     };
@@ -576,10 +580,10 @@ window.onload = function () {
         y: 0
     };
     stateManager.camera.swidth = function () {
-        return canvas.width / stateManager.camera.scale;
+        return Math.floor(canvas.width / stateManager.camera.scale);
     };
     stateManager.camera.sheight = function () {
-        return canvas.height / stateManager.camera.scale;
+        return Math.floor(canvas.height / stateManager.camera.scale);
     };
 
     stateManager.connect = function (address) {
@@ -596,17 +600,23 @@ window.onload = function () {
         return stateManager.state = new _menustate2.default(stateManager);
     });
 
-    function tick() {
-        context.clearRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
+    function update() {
         if (stateManager.state) stateManager.state.update();
+    }
+
+    function render() {
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
+        if (stateManager.state) stateManager.state.render();
         if (stateManager.animation) {
             stateManager.animation.update();
             if (stateManager.animation.isFinished()) stateManager.animation = null;
         }
-        window.requestAnimationFrame(tick);
+        window.requestAnimationFrame(render);
     }
 
-    window.requestAnimationFrame(tick);
+    setInterval(update, 1000 / 60);
+    window.requestAnimationFrame(render);
 
     function updateCanvasSize() {
         canvas.width = window.innerWidth * window.devicePixelRatio;
@@ -1059,7 +1069,6 @@ var Renderer = function Renderer(camera) {
         'gascan': document.getElementById('gasCanImg'),
         'wreckage': document.getElementById('wreckageImg'),
         'launchpad': document.getElementById('launchpadImg'),
-        'waterTile': document.getElementById('waterImg'),
         'road': document.getElementById('road'),
         'grass': document.getElementById('grass'),
         'intersection': document.getElementById('intersection')
@@ -1415,7 +1424,7 @@ var Renderer = function Renderer(camera) {
 
     this.centerCameraOnPlayer = function (player) {
         camera.x = Math.floor(player.x - camera.swidth() / 2);
-        camera.y = Math.floor(player.y - camera.sheight() / 2);
+        camera.y = Math.round(player.y - camera.sheight() / 2);
     };
 };
 

@@ -8,8 +8,8 @@ export default class MenuState {
 
     constructor(stateManager) {
 
-        this._canvas = document.getElementById('canvas');
-        this._context = this._canvas.getContext('2d');
+        this._bufferCanvas = document.getElementById('canvas');
+        this._bufferCtx = this._bufferCanvas.getContext('2d');
         this._tileImage = document.getElementById('tileImg');
         this._tileSize = 100;
         this._playButton = $('#playButton');
@@ -82,10 +82,11 @@ export default class MenuState {
                 this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
             }
         };
-        this.update = () => {
+        this.update = () => {};
+        this.render = () => {
             for(let row = 0; row < Math.floor(stateManager.camera.swidth() / this._tileSize) + 1; row++) {
                 for (let col = 0; col < Math.floor(stateManager.camera.sheight() / this._tileSize) + 1; col++) {
-                    this._context.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize+1, this._tileSize+1);
+                    this._bufferCtx.drawImage(this._tileImage, row * this._tileSize, col * this._tileSize, this._tileSize+1, this._tileSize+1);
                 }
             }
         };
