@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4a27b173-f6a5-474c-bf6f-15de7edeb0cf" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/images/gascan.png" afterPath="$PROJECT_DIR$/images/gascan.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/images/grass.png" afterPath="$PROJECT_DIR$/images/grass.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/images/intersection.png" afterPath="$PROJECT_DIR$/images/intersection.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/images/ogimage.jpg" afterPath="$PROJECT_DIR$/images/ogimage.jpg" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/images/road.png" afterPath="$PROJECT_DIR$/images/road.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/bundle.js" afterPath="$PROJECT_DIR$/bundle.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/css/main.css" afterPath="$PROJECT_DIR$/css/main.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/client.js" afterPath="$PROJECT_DIR$/js/client.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/game.js" afterPath="$PROJECT_DIR$/js/game.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/menustate.js" afterPath="$PROJECT_DIR$/js/menustate.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/render.js" afterPath="$PROJECT_DIR$/js/render.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -426,13 +414,20 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1502413079475</updated>
-      <workItem from="1502413085933" duration="5403000" />
+      <workItem from="1502413085933" duration="5523000" />
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="jitter caused by smoothing camera">
+      <created>1502428820542</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1502428820542</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="21563000" />
+    <option name="totallyTimeSpent" value="21683000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="6" />
@@ -481,7 +476,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="problems with dying and extrapolation" />
-    <option name="LAST_COMMIT_MESSAGE" value="problems with dying and extrapolation" />
+    <MESSAGE value="jitter caused by smoothing camera" />
+    <option name="LAST_COMMIT_MESSAGE" value="jitter caused by smoothing camera" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
