@@ -48,8 +48,8 @@
 
     <div id="menuWrapper" style="transform: translate(-50%, 0%) scale(1); -moz-transform: translate(-50%, 0%) scale(1);">
 
-        <div class="infoArea" id="infoArea">
-            <h2 style="width: 100%; text-align: center;">How To Play</h2>
+        <div class="sidePanel" id="infoArea">
+            <h2 style="width: 100%; text-align: center; padding:0; margin: 0;">How To Play</h2>
             <ul style="display: block; position:relative; font-size: 14px;">
                 <li>Consume gas cans or hit green tailed cars to gain points</li>
                 <li>Don't run out of gas!</li>
@@ -71,9 +71,8 @@
                data-hashtags="skrrtio" data-show-count="false">Tweet</a>
             <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-            <button class="feedback" onclick="_urq.push(['Feedback_Open'])">Feedback/Bug</button>
+            <button class="smallButton" onclick="_urq.push(['Feedback_Open'])">Feedback/Bug</button>
         </div>
-
 
         <div class="loginArea" id="loginArea">
             <div class="titleLabel">
@@ -94,6 +93,23 @@
             <button class="playButton" id="playButton">PLAY</button>
         </div>
 
+        <div class="sidePanel" id="infoArea2">
+            <h2 style="width: 100%; text-align: center; padding:0; margin: 0;">News</h2>
+            <ul style="display: block; position:relative; font-size: 14px;">
+                <li>New cars will be arriving soon!</li>
+                <li>Gas can visual updates were just released</li>
+                <li>Fixed a bug causing camera jitter</li>
+            </ul>
+
+            <h2 style="width: 100%; text-align: center; padding:0; margin: 0; margin-top: 8px">Check This Out!</h2>
+            <iframe id="IOG_CP" class="crossPromo" scrolling="no" frameborder="0" width="200"
+                    height="145" src="https://viral.iogames.space/cp/skrrt-io-(beta)"
+                    style="border-radius:10px;-webkit-box-shadow:0 3px 6px rgba(0,0,0,.25),0 3px 6px rgba(0,0,0,.4);
+-moz-box-shadow:0 3px 6px rgba(0,0,0,.25),0 3px 6px rgba(0,0,0,.4);
+box-shadow:0 3px 6px rgba(0,0,0,.25),0 3px 6px rgba(0,0,0,.4); margin: 0 auto;">
+            </iframe>
+            <button class="smallButton" onclick="window.location='http://iogames.space';">More io Games</button>
+        </div>
     </div>
 
     <div class="leaderboard" id="leaderboard">

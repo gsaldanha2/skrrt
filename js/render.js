@@ -149,7 +149,7 @@ export default class Renderer {
         this._renderEntity = (entity) => {
             let img = this._imageForEntity(entity);
             this._context.save();
-            this._context.translate(Math.floor(entity.x - camera.x), Math.floor(entity.y - camera.y));
+            this._context.translate(Math.round(entity.x - camera.x), Math.round(entity.y - camera.y));
             this._context.rotate(-entity.rotation * Math.PI / 180);
 
             if(entity.type === buffers.EntityUnion.PlayerBuffer) {
@@ -316,9 +316,15 @@ export default class Renderer {
             // console.log(Date.now() - startTime);
         };
 
+        let lastTime = Date.now();
         this.centerCameraOnPlayer = (player) => {
-            camera.x = Math.floor(player.x - camera.swidth() / 2);
-            camera.y = Math.round(player.y - camera.sheight() / 2);
+            let currTime = Date.now();
+            let delta = currTime - lastTime;
+            lastTime = currTime;
+            camera.x += Math.floor((player.x - camera.swidth() / 2 - camera.x) * 0.1 * (1 - Math.exp(-20 * delta)));
+            camera.y += Math.floor((player.y - camera.sheight() / 2 - camera.y) * 0.1 * (1 - Math.exp(-20 * delta)));
+            // camera.x = player.x - camera.swidth() / 2;
+            // camera.y = player.y - camera.sheight() / 2;
         };
     }
 

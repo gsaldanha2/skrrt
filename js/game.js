@@ -78,13 +78,15 @@ export default class Game {
         this._interpData = {
             startUpdate: null,
             endUpdate: null,
-            renderTime: Date.now() - LERP_MS
+            renderTime: undefined,
+            clientTime: undefined
         };
+        let lastTime = Date.now();
+        let delta = 0;
 
         this._preventPacketBackup = () => {
             this._interpData.endUpdate = null;
             this._packetQueue = [];
-            console.log('flush');
         };
 
         this._setupStartUpdateVelocities = () => {
@@ -108,11 +110,11 @@ export default class Game {
         };
 
         this._loadStartEndPackets = () => {
-            this._interpData.renderTime = Date.now() - LERP_MS;
-            if(this._interpData.startUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].clientTimeMs <= this._interpData.renderTime) {
+            this._interpData.renderTime = this._interpData.clientTime - LERP_MS;
+            if(this._interpData.startUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].serverTimeMs <= this._interpData.renderTime) {
                 this._interpData.startUpdate = this._packetQueue.shift();
             }
-            if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0) {
+            if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].serverTimeMs >= this._interpData.renderTime) {
                 this._interpData.endUpdate = this._packetQueue.shift();
                 this._setupStartUpdateVelocities();
                 this.leaderboard = this._interpData.startUpdate.leaderboard;
@@ -120,8 +122,12 @@ export default class Game {
         };
 
         this._interpolate = () => {
+            if(this._packetQueue > 10) {
+                this._preventPacketBackup();
+                console.log('more than 10 packets');
+            }
             let interpDuration = this._interpData.endUpdate.serverTimeMs - this._interpData.startUpdate.serverTimeMs;
-            let ratio = (this._interpData.renderTime - this._interpData.startUpdate.clientTimeMs) / interpDuration;
+            let ratio = (this._interpData.renderTime - this._interpData.startUpdate.serverTimeMs) / interpDuration;
             for (let entity of this.entities.values()) {
                 if(isNaN(entity.dx) || isNaN(entity.dy)) continue; //doesnt exist in endupdate
                 entity.x = entity.startx + entity.dx * ratio;
@@ -137,19 +143,27 @@ export default class Game {
         };
 
         this.updateEntities = () => {
-            const startTime = Date.now();
+            let currTime = Date.now();
+            delta = currTime - lastTime;
+            lastTime = currTime;
+            if(this._interpData.clientTime === undefined) return;
+            this._interpData.clientTime += delta;
+
             this._loadStartEndPackets();
 
             if (this._interpData.startUpdate === null) {
+                console.log('no start update');
                 return;
             }
             if (this._interpData.endUpdate === null) {
-                if(this._packetQueue.length > 0) this._preventPacketBackup();
-                // else {} //TODO extrapolate from startupdate
+                console.log('no end update');
+                if(this._packetQueue.length > 0) {
+                    console.log('queue clogged');
+                    this._preventPacketBackup();
+                }
             } else {
                 this._interpolate();
             }
-            if(Date.now() - startTime > 50) console.log(Date.now() - startTime);
         };
 
         this.cleanup = () => {
@@ -174,9 +188,9 @@ export default class Game {
                 packet.leaderboard.push(buffer.leaderboard(i));
             }
             packet.player.stats.gasLevel = buffer.gasLevel();
-            packet.clientTimeMs = Date.now();
             packet.serverTimeMs = buffer.serverTimeMs().toFloat64();
             packet.myInfo = buffer.myInfo();
+            if(this._interpData.clientTime === undefined) this._interpData.clientTime = packet.serverTimeMs;
             return packet;
         };
 

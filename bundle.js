@@ -439,12 +439,13 @@ var MenuState = function MenuState(stateManager) {
     this._nickInput = $('#nickInput');
 
     this._servers = {
-        'US-CA': 'ws://104.197.76.2:8080'
-        // 'US-CA': 'ws://localhost:4000'
+        // 'US-CA': 'ws://104.197.76.2:8080'
+        'US-CA': 'ws://localhost:4000'
     };
 
     $('#loginArea').slideDown(1000);
     $('#infoArea').slideDown(1000);
+    $('#infoArea2').slideDown(1000);
     $('#tutorialArea').slideDown(1000);
     $('#leaderboard').slideUp();
     $('#slowButton').slideUp();
@@ -487,6 +488,7 @@ var MenuState = function MenuState(stateManager) {
 
         $('#loginArea').slideUp();
         $('#infoArea').slideUp();
+        $('#infoArea2').slideUp();
         $('#tutorialArea').slideUp();
         $('#leaderboard').slideDown();
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
@@ -605,6 +607,7 @@ window.onload = function () {
     }
 
     function render() {
+        update();
         context.fillStyle = 'black';
         context.fillRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
         if (stateManager.state) stateManager.state.render();
@@ -615,7 +618,6 @@ window.onload = function () {
         window.requestAnimationFrame(render);
     }
 
-    setInterval(update, 1000 / 60);
     window.requestAnimationFrame(render);
 
     function updateCanvasSize() {
@@ -755,13 +757,15 @@ var Game = function () {
         this._interpData = {
             startUpdate: null,
             endUpdate: null,
-            renderTime: Date.now() - LERP_MS
+            renderTime: undefined,
+            clientTime: undefined
         };
+        var lastTime = Date.now();
+        var delta = 0;
 
         this._preventPacketBackup = function () {
             _this._interpData.endUpdate = null;
             _this._packetQueue = [];
-            console.log('flush');
         };
 
         this._setupStartUpdateVelocities = function () {
@@ -828,11 +832,11 @@ var Game = function () {
         };
 
         this._loadStartEndPackets = function () {
-            _this._interpData.renderTime = Date.now() - LERP_MS;
-            if (_this._interpData.startUpdate === null && _this._packetQueue.length > 0 && _this._packetQueue[0].clientTimeMs <= _this._interpData.renderTime) {
+            _this._interpData.renderTime = _this._interpData.clientTime - LERP_MS;
+            if (_this._interpData.startUpdate === null && _this._packetQueue.length > 0 && _this._packetQueue[0].serverTimeMs <= _this._interpData.renderTime) {
                 _this._interpData.startUpdate = _this._packetQueue.shift();
             }
-            if (_this._interpData.startUpdate !== null && _this._interpData.endUpdate === null && _this._packetQueue.length > 0) {
+            if (_this._interpData.startUpdate !== null && _this._interpData.endUpdate === null && _this._packetQueue.length > 0 && _this._packetQueue[0].serverTimeMs >= _this._interpData.renderTime) {
                 _this._interpData.endUpdate = _this._packetQueue.shift();
                 _this._setupStartUpdateVelocities();
                 _this.leaderboard = _this._interpData.startUpdate.leaderboard;
@@ -840,8 +844,12 @@ var Game = function () {
         };
 
         this._interpolate = function () {
+            if (_this._packetQueue > 10) {
+                _this._preventPacketBackup();
+                console.log('more than 10 packets');
+            }
             var interpDuration = _this._interpData.endUpdate.serverTimeMs - _this._interpData.startUpdate.serverTimeMs;
-            var ratio = (_this._interpData.renderTime - _this._interpData.startUpdate.clientTimeMs) / interpDuration;
+            var ratio = (_this._interpData.renderTime - _this._interpData.startUpdate.serverTimeMs) / interpDuration;
             var _iteratorNormalCompletion3 = true;
             var _didIteratorError3 = false;
             var _iteratorError3 = undefined;
@@ -879,19 +887,27 @@ var Game = function () {
         };
 
         this.updateEntities = function () {
-            var startTime = Date.now();
+            var currTime = Date.now();
+            delta = currTime - lastTime;
+            lastTime = currTime;
+            if (_this._interpData.clientTime === undefined) return;
+            _this._interpData.clientTime += delta;
+
             _this._loadStartEndPackets();
 
             if (_this._interpData.startUpdate === null) {
+                console.log('no start update');
                 return;
             }
             if (_this._interpData.endUpdate === null) {
-                if (_this._packetQueue.length > 0) _this._preventPacketBackup();
-                // else {} //TODO extrapolate from startupdate
+                console.log('no end update');
+                if (_this._packetQueue.length > 0) {
+                    console.log('queue clogged');
+                    _this._preventPacketBackup();
+                }
             } else {
                 _this._interpolate();
             }
-            if (Date.now() - startTime > 50) console.log(Date.now() - startTime);
         };
 
         this.cleanup = function () {
@@ -916,9 +932,9 @@ var Game = function () {
                 packet.leaderboard.push(buffer.leaderboard(_i));
             }
             packet.player.stats.gasLevel = buffer.gasLevel();
-            packet.clientTimeMs = Date.now();
             packet.serverTimeMs = buffer.serverTimeMs().toFloat64();
             packet.myInfo = buffer.myInfo();
+            if (_this._interpData.clientTime === undefined) _this._interpData.clientTime = packet.serverTimeMs;
             return packet;
         };
 
@@ -1195,7 +1211,7 @@ var Renderer = function Renderer(camera) {
     this._renderEntity = function (entity) {
         var img = _this._imageForEntity(entity);
         _this._context.save();
-        _this._context.translate(Math.floor(entity.x - camera.x), Math.floor(entity.y - camera.y));
+        _this._context.translate(Math.round(entity.x - camera.x), Math.round(entity.y - camera.y));
         _this._context.rotate(-entity.rotation * Math.PI / 180);
 
         if (entity.type === buffers.EntityUnion.PlayerBuffer) {
@@ -1422,9 +1438,15 @@ var Renderer = function Renderer(camera) {
         // console.log(Date.now() - startTime);
     };
 
+    var lastTime = Date.now();
     this.centerCameraOnPlayer = function (player) {
-        camera.x = Math.floor(player.x - camera.swidth() / 2);
-        camera.y = Math.round(player.y - camera.sheight() / 2);
+        var currTime = Date.now();
+        var delta = currTime - lastTime;
+        lastTime = currTime;
+        camera.x += Math.floor((player.x - camera.swidth() / 2 - camera.x) * 0.1 * (1 - Math.exp(-20 * delta)));
+        camera.y += Math.floor((player.y - camera.sheight() / 2 - camera.y) * 0.1 * (1 - Math.exp(-20 * delta)));
+        // camera.x = player.x - camera.swidth() / 2;
+        // camera.y = player.y - camera.sheight() / 2;
     };
 };
 

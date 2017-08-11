@@ -38,12 +38,26 @@ input {
     left: 50%;
 
     position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     webkit-transform-origin: top center;
     transform-origin: center top 0;
 
     vertical-align: top;
     /*box-sizing: border-box;*/
+}
+
+.crossPromo {
+    display: block !important;
+    margin-top: 8px !important;
+}
+
+#menuWrapper > div {
+    margin: 0 4px;
+    flex: 0 0 auto;
+    align-self: flex-start;
 }
 
 .menuArea {
@@ -61,14 +75,13 @@ input {
 }
 
 .loginArea {
-    position: absolute;
     display: none;
     width: auto;
     height: 760px;
 
     top: 0;
-    left: 50%;
-    transform: translate(-50%, 0);
+    /*left: 50%;*/
+    /*transform: translate(-50%, 0);*/
 
     background-color: rgba(0, 0, 0, 0.5);
     padding: 50px;
@@ -76,18 +89,15 @@ input {
     box-sizing: border-box;
 }
 
-.infoArea {
+.sidePanel {
     display: none;
-    position: relative;
     background-color: rgba(0, 0, 0, 0.5);
     color: #777;
     font-size: 12px;
     width: 265px;
     height: auto;
 
-    margin-right: 8px;
-
-    padding-top: 8px;
+    padding-top: 16px;
     padding-left: 16px;
     padding-right: 16px;
     padding-bottom: 16px;
@@ -215,11 +225,11 @@ input {
     margin-top: 12px;
 }
 
-.feedback:active {
+.smallButton:active {
     background-color: #8d0000;
 }
 
-.feedback {
+.smallButton {
     display: block;
     color: #ffffff;
     text-align: center;
@@ -240,11 +250,11 @@ input {
     outline: none;
 }
 
-.feedback:hover {
+.smallButton:hover {
     background-color: transparent;
 }
 
-.feedback:active {
+.smallButton:active {
     background-color: #8d0000;
 }
 

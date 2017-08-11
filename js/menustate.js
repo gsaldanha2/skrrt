@@ -20,12 +20,13 @@ export default class MenuState {
         this._nickInput = $('#nickInput');
 
         this._servers = {
-            'US-CA': 'ws://104.197.76.2:8080'
-            // 'US-CA': 'ws://localhost:4000'
+            // 'US-CA': 'ws://104.197.76.2:8080'
+            'US-CA': 'ws://localhost:4000'
         };
 
         $('#loginArea').slideDown(1000);
         $('#infoArea').slideDown(1000);
+        $('#infoArea2').slideDown(1000);
         $('#tutorialArea').slideDown(1000);
         $('#leaderboard').slideUp();
         $('#slowButton').slideUp();
@@ -64,6 +65,7 @@ export default class MenuState {
 
             $('#loginArea').slideUp();
             $('#infoArea').slideUp();
+            $('#infoArea2').slideUp();
             $('#tutorialArea').slideUp();
             $('#leaderboard').slideDown();
             if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {

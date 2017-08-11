@@ -43,6 +43,7 @@ window.onload = function() {
     }
 
     function render() {
+        update();
         context.fillStyle = 'black';
         context.fillRect(0, 0, stateManager.camera.swidth(), stateManager.camera.sheight());
         if (stateManager.state) stateManager.state.render();
@@ -53,7 +54,6 @@ window.onload = function() {
         window.requestAnimationFrame(render);
     }
 
-    setInterval(update, 1000/60);
     window.requestAnimationFrame(render);
 
     function updateCanvasSize() {
