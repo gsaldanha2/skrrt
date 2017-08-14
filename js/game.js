@@ -12,20 +12,13 @@ export default class Game {
         this.player = null;
 
         this._inputPacket = {
-            laneChange: 0,
+            laneChange: -1,
             slow: false
         };
 
         this._hammer = new Hammer.Manager(window);
         this._hammer.add(new Hammer.Swipe());
 
-        this._turnmap = {
-            //key = player rotation, val = [keyToTurnLeft, keyToTurnRight]
-            0: [37, 39],
-            90: [40, 38],
-            180: [39, 37],
-            270: [38, 40]
-        };
         this._slowButton = $('#slowButton');
 
         this._setupInputForMobile = () => {
@@ -60,14 +53,18 @@ export default class Game {
         this._handleKeyPress = (key) => {
             if (this.player === null) return;
             switch (key) {
-                case this._turnmap[this.player.rotation][0]:
-                    this._inputPacket.laneChange = -1;
+                case 38:
+                    this._inputPacket.laneChange = 0;
                     break;
-
-                case this._turnmap[this.player.rotation][1]:
+                case 37:
                     this._inputPacket.laneChange = 1;
                     break;
-
+                case 40:
+                    this._inputPacket.laneChange = 2;
+                    break;
+                case 39:
+                    this._inputPacket.laneChange = 3;
+                    break;
                 case 32: //spacebar
                     this._inputPacket.slow = true;
                     break;
@@ -124,7 +121,6 @@ export default class Game {
         this._interpolate = () => {
             if(this._packetQueue > 10) {
                 this._preventPacketBackup();
-                console.log('more than 10 packets');
             }
             let interpDuration = this._interpData.endUpdate.serverTimeMs - this._interpData.startUpdate.serverTimeMs;
             let ratio = (this._interpData.renderTime - this._interpData.startUpdate.serverTimeMs) / interpDuration;
@@ -152,13 +148,13 @@ export default class Game {
             this._loadStartEndPackets();
 
             if (this._interpData.startUpdate === null) {
-                console.log('no start update');
+                // console.log('no start');
                 return;
             }
             if (this._interpData.endUpdate === null) {
-                console.log('no end update');
+                // console.log('no end');
                 if(this._packetQueue.length > 0) {
-                    console.log('queue clogged');
+                    // console.log('backup');
                     this._preventPacketBackup();
                 }
             } else {
@@ -250,7 +246,7 @@ export default class Game {
         };
 
         this.resetInputPacket = () => {
-            this._inputPacket.laneChange = 0;
+            this._inputPacket.laneChange = -1;
             //dont reset slow down
         };
 

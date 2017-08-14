@@ -439,8 +439,8 @@ var MenuState = function MenuState(stateManager) {
     this._nickInput = $('#nickInput');
 
     this._servers = {
-        // 'US-CA': 'ws://104.197.76.2:8080'
-        'US-CA': 'ws://localhost:4000'
+        'Autopick (USA/EU)': 'ws://35.201.125.63:8080'
+        // 'US-CA': 'ws://localhost:4000'
     };
 
     $('#loginArea').slideDown(1000);
@@ -463,7 +463,7 @@ var MenuState = function MenuState(stateManager) {
     this._connectToSelected = function () {
         stateManager.connect(_this._servers[_this._serverSelect.val()]);
         stateManager.connection.alias = _this._serverSelect.val();
-        console.log(stateManager.connection.alias);
+        console.log(_this._servers[_this._serverSelect.val()]);
     };
 
     this._serverSelect.change(this._connectToSelected);
@@ -486,6 +486,8 @@ var MenuState = function MenuState(stateManager) {
         _this._btnClicked = true;
         _this._nickInput.blur();
 
+        ga('send', 'event', 'games', 'play', 'playing game');
+
         $('#loginArea').slideUp();
         $('#infoArea').slideUp();
         $('#infoArea2').slideUp();
@@ -505,6 +507,7 @@ var MenuState = function MenuState(stateManager) {
         if (msgBuf.messageType() === buffers.MessageUnion.ServerDataBuffer) {
             var dataBuf = msgBuf.message(new buffers.ServerDataBuffer());
             _this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
+            if (_this._lt !== undefined) $('#ping').text('Ping: ' + (Date.now() - _this._lt));
         }
     };
     this.update = function () {};
@@ -527,6 +530,7 @@ var MenuState = function MenuState(stateManager) {
         buffers.MessageBuffer.addMessage(builder, buf);
         builder.finish(buffers.MessageBuffer.endMessageBuffer(builder));
         stateManager.connection.send(builder.asUint8Array());
+        _this._lt = Date.now();
     };
 
     if (stateManager.connection.readyState === 1) this._hasConnected();else stateManager.connection.setConnectionCallback(this._hasConnected);
@@ -565,6 +569,7 @@ var profile = undefined;
 
 window.onload = function () {
 
+    alert('We are creating EU/Asia servers, please be patient');
     console.log("------------ WELCOME TO SKRRT.IO ------------");
 
     var canvas = document.getElementById('canvas');
@@ -678,20 +683,13 @@ var Game = function () {
         this.player = null;
 
         this._inputPacket = {
-            laneChange: 0,
+            laneChange: -1,
             slow: false
         };
 
         this._hammer = new Hammer.Manager(window);
         this._hammer.add(new Hammer.Swipe());
 
-        this._turnmap = {
-            //key = player rotation, val = [keyToTurnLeft, keyToTurnRight]
-            0: [37, 39],
-            90: [40, 38],
-            180: [39, 37],
-            270: [38, 40]
-        };
         this._slowButton = $('#slowButton');
 
         this._setupInputForMobile = function () {
@@ -738,14 +736,18 @@ var Game = function () {
         this._handleKeyPress = function (key) {
             if (_this.player === null) return;
             switch (key) {
-                case _this._turnmap[_this.player.rotation][0]:
-                    _this._inputPacket.laneChange = -1;
+                case 38:
+                    _this._inputPacket.laneChange = 0;
                     break;
-
-                case _this._turnmap[_this.player.rotation][1]:
+                case 37:
                     _this._inputPacket.laneChange = 1;
                     break;
-
+                case 40:
+                    _this._inputPacket.laneChange = 2;
+                    break;
+                case 39:
+                    _this._inputPacket.laneChange = 3;
+                    break;
                 case 32:
                     //spacebar
                     _this._inputPacket.slow = true;
@@ -846,7 +848,6 @@ var Game = function () {
         this._interpolate = function () {
             if (_this._packetQueue > 10) {
                 _this._preventPacketBackup();
-                console.log('more than 10 packets');
             }
             var interpDuration = _this._interpData.endUpdate.serverTimeMs - _this._interpData.startUpdate.serverTimeMs;
             var ratio = (_this._interpData.renderTime - _this._interpData.startUpdate.serverTimeMs) / interpDuration;
@@ -896,13 +897,13 @@ var Game = function () {
             _this._loadStartEndPackets();
 
             if (_this._interpData.startUpdate === null) {
-                console.log('no start update');
+                // console.log('no start');
                 return;
             }
             if (_this._interpData.endUpdate === null) {
-                console.log('no end update');
+                // console.log('no end');
                 if (_this._packetQueue.length > 0) {
-                    console.log('queue clogged');
+                    // console.log('backup');
                     _this._preventPacketBackup();
                 }
             } else {
@@ -994,7 +995,7 @@ var Game = function () {
         };
 
         this.resetInputPacket = function () {
-            _this._inputPacket.laneChange = 0;
+            _this._inputPacket.laneChange = -1;
             //dont reset slow down
         };
 
@@ -1046,7 +1047,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                                                                                                                                            */
 
 var SECTION_SIZE = 360;
-var CHUNK_COUNT = 10;
+var CHUNK_COUNT = 7;
 var HP_BAR_LEN = 50;
 var SMALL_HP_BAR_HEIGHT = 12;
 var LARGE_BAR_HEIGHT = 16;
@@ -1438,15 +1439,15 @@ var Renderer = function Renderer(camera) {
         // console.log(Date.now() - startTime);
     };
 
-    var lastTime = Date.now();
+    // let lastTime = Date.now();
     this.centerCameraOnPlayer = function (player) {
-        var currTime = Date.now();
-        var delta = currTime - lastTime;
-        lastTime = currTime;
-        camera.x += Math.floor((player.x - camera.swidth() / 2 - camera.x) * 0.1 * (1 - Math.exp(-20 * delta)));
-        camera.y += Math.floor((player.y - camera.sheight() / 2 - camera.y) * 0.1 * (1 - Math.exp(-20 * delta)));
-        // camera.x = player.x - camera.swidth() / 2;
-        // camera.y = player.y - camera.sheight() / 2;
+        // let currTime = Date.now();
+        // let delta = currTime - lastTime;
+        // lastTime = currTime;
+        // camera.x += Math.floor((player.x - camera.swidth() / 2 - camera.x) * 0.1 * (1 - Math.exp(-20 * delta)));
+        // camera.y += Math.floor((player.y - camera.sheight() / 2 - camera.y) * 0.1 * (1 - Math.exp(-20 * delta)));
+        camera.x = player.x - camera.swidth() / 2;
+        camera.y = player.y - camera.sheight() / 2;
     };
 };
 

@@ -20,8 +20,8 @@ export default class MenuState {
         this._nickInput = $('#nickInput');
 
         this._servers = {
-            // 'US-CA': 'ws://104.197.76.2:8080'
-            'US-CA': 'ws://localhost:4000'
+            'Autopick (USA/EU)': 'ws://35.201.125.63:8080'
+            // 'US-CA': 'ws://localhost:4000'
         };
 
         $('#loginArea').slideDown(1000);
@@ -44,7 +44,7 @@ export default class MenuState {
         this._connectToSelected = () => {
             stateManager.connect(this._servers[this._serverSelect.val()]);
             stateManager.connection.alias = this._serverSelect.val();
-            console.log(stateManager.connection.alias);
+            console.log(this._servers[this._serverSelect.val()]);
         };
 
         this._serverSelect.change(this._connectToSelected);
@@ -62,6 +62,8 @@ export default class MenuState {
             }
             this._btnClicked = true;
             this._nickInput.blur();
+
+            ga('send', 'event', 'games', 'play', 'playing game');
 
             $('#loginArea').slideUp();
             $('#infoArea').slideUp();
@@ -82,6 +84,7 @@ export default class MenuState {
             if(msgBuf.messageType() === buffers.MessageUnion.ServerDataBuffer) {
                 let dataBuf = msgBuf.message(new buffers.ServerDataBuffer());
                 this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
+                if(this._lt !== undefined) $('#ping').text('Ping: ' + (Date.now() - this._lt));
             }
         };
         this.update = () => {};
@@ -104,6 +107,7 @@ export default class MenuState {
             buffers.MessageBuffer.addMessage(builder, buf);
             builder.finish(buffers.MessageBuffer.endMessageBuffer(builder));
             stateManager.connection.send(builder.asUint8Array());
+            this._lt = Date.now();
         };
 
         if(stateManager.connection.readyState === 1) this._hasConnected();

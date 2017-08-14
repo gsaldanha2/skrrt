@@ -6,7 +6,7 @@ import * as common from './common.js';
 import NumAbbr from 'number-abbreviate';
 
 const SECTION_SIZE = 360;
-const CHUNK_COUNT = 10;
+const CHUNK_COUNT = 7;
 const HP_BAR_LEN = 50;
 const SMALL_HP_BAR_HEIGHT = 12;
 const LARGE_BAR_HEIGHT = 16;
@@ -316,15 +316,15 @@ export default class Renderer {
             // console.log(Date.now() - startTime);
         };
 
-        let lastTime = Date.now();
+        // let lastTime = Date.now();
         this.centerCameraOnPlayer = (player) => {
-            let currTime = Date.now();
-            let delta = currTime - lastTime;
-            lastTime = currTime;
-            camera.x += Math.floor((player.x - camera.swidth() / 2 - camera.x) * 0.1 * (1 - Math.exp(-20 * delta)));
-            camera.y += Math.floor((player.y - camera.sheight() / 2 - camera.y) * 0.1 * (1 - Math.exp(-20 * delta)));
-            // camera.x = player.x - camera.swidth() / 2;
-            // camera.y = player.y - camera.sheight() / 2;
+            // let currTime = Date.now();
+            // let delta = currTime - lastTime;
+            // lastTime = currTime;
+            // camera.x += Math.floor((player.x - camera.swidth() / 2 - camera.x) * 0.1 * (1 - Math.exp(-20 * delta)));
+            // camera.y += Math.floor((player.y - camera.sheight() / 2 - camera.y) * 0.1 * (1 - Math.exp(-20 * delta)));
+            camera.x = player.x - camera.swidth() / 2;
+            camera.y = player.y - camera.sheight() / 2;
         };
     }
 
