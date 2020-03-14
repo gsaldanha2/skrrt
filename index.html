@@ -42,7 +42,7 @@
 
     </script>
 </head>
-<body>
+<body id="body">
 
 <div class="menuArea" id="menuArea">
 
@@ -86,7 +86,7 @@
 
             <div class="serverSelectWrapper">
                 <select id="serverSelect">
-                    <option value="Autopick (USA/EU)">Autopick (USA/EU)</option>
+                    <option value="North America">North America</option>
                 </select>
                 <input type="image" src="images/refresh.png" id="refreshBtn" />
             </div>
@@ -100,7 +100,6 @@
                 <li>New cars will be arriving soon!</li>
                 <li>Gas can visual updates were just released</li>
                 <li>Fixed a bug causing camera jitter</li>
-                <li>Server now in Europe (Germany)!</li>
                 <li>Players will be auto-assigned to best server</li>
             </ul>
 
@@ -136,7 +135,7 @@ box-shadow:0 3px 6px rgba(0,0,0,.25),0 3px 6px rgba(0,0,0,.4); margin: 0 auto;">
 <canvas id="canvas"><p>Your browser does not support HTML5!</p></canvas>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script type="text/javascript" src="hammer.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-touch-events/1.0.5/jquery.mobile-events.js"></script>
 <script type="text/javascript" src="buffers/flatbuffers.js"></script>
 <script type="text/javascript" src="buffers/InputPacketBuffer_generated.js"></script>
 <script type="text/javascript" src="buffers/SnapshotBuffer_generated.js"></script>

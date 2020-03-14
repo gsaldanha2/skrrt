@@ -5,13 +5,10 @@ module.exports = {
         filename: 'bundle.js'
     },
     module: {
-        loaders: [
+        rules:  [
             {
                 test: /\.js$/,
                 loader: 'babel-loader',
-                query: {
-                    presets: ['es2015']
-                }
             }
         ]
     }

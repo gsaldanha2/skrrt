@@ -1,7 +1,6 @@
 /**
  * Created by Gregory on 6/12/17.
  */
-
 const LERP_MS = 100;
 
 export default class Game {
@@ -16,16 +15,13 @@ export default class Game {
             slow: false
         };
 
-        this._hammer = new Hammer.Manager(window);
-        this._hammer.add(new Hammer.Swipe());
-
         this._slowButton = $('#slowButton');
 
         this._setupInputForMobile = () => {
-            this._hammer.on('swipeleft', (e) => this._handleKeyPress(37));
-            this._hammer.on('swiperight', () => this._handleKeyPress(39));
-            this._hammer.on('swipeup', () => this._handleKeyPress(38));
-            this._hammer.on('swipedown', () => this._handleKeyPress(40));
+            $("#body").swipeleft(() => this._handleKeyPress(37))
+                .swiperight(() => this._handleKeyPress(39))
+                .swipeup(() => this._handleKeyPress(38))
+                .swipedown(() => this._handleKeyPress(40));
 
             this._slowButton.bind('touchstart', () => this._slowButton.trigger('mousedown')).bind('touchend', () => this._slowButton.trigger('mouseup')); //mobile support
 
@@ -163,7 +159,6 @@ export default class Game {
         };
 
         this.cleanup = () => {
-            this._hammer.destroy();
         };
 
         this.handleRecieveSnapshot = (msgBuf) => {

@@ -1,0 +1,34 @@
+{
+    "faces":[35,0,1,3,2,0,0,0,0,0,35,2,3,7,6,0,1,1,1,1,35,6,7,5,4,0,2,2,2,2,35,1,0,4,5,0,3,3,3,3,35,4,0,2,6,0,4,4,4,4,35,7,3,1,5,0,5,5,5,5],
+    "uvs":[],
+    "metadata":{
+        "type":"Geometry",
+        "vertices":8,
+        "generator":"io_three",
+        "version":3,
+        "faces":6,
+        "uvs":0,
+        "normals":6,
+        "materials":1
+    },
+    "vertices":[-6.57176,-0.00973654,6.57176,-6.57176,13.1338,6.57175,-6.57176,-0.00973749,-6.57176,-6.57176,13.1338,-6.57176,6.57176,-0.00973654,6.57176,6.57176,13.1338,6.57175,6.57176,-0.00973749,-6.57176,6.57176,13.1338,-6.57176],
+    "normals":[-1,0,0,0,-7.25586e-08,-1,1,0,0,0,7.25586e-08,1,0,-1,7.25586e-08,0,1,0],
+    "materials":[{
+        "depthWrite":true,
+        "doubleSided":false,
+        "visible":true,
+        "DbgName":"Material.001",
+        "colorSpecular":[1,1,1],
+        "blending":"NormalBlending",
+        "depthTest":true,
+        "shading":"phong",
+        "DbgColor":15658734,
+        "colorDiffuse":[0,0.8,0.00795124],
+        "transparent":false,
+        "DbgIndex":0,
+        "opacity":1,
+        "wireframe":false,
+        "colorEmissive":[0,0,0],
+        "specularCoef":50
+    }]
+}

@@ -20,7 +20,7 @@ export default class MenuState {
         this._nickInput = $('#nickInput');
 
         this._servers = {
-            'Autopick (USA/EU)': 'ws://35.201.125.63:8080'
+            'North America': 'ws://35.239.58.6:8005'
             // 'US-CA': 'ws://localhost:4000'
         };
 
