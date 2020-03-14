@@ -104,8 +104,14 @@ export default class Game {
 
         this._loadStartEndPackets = () => {
             this._interpData.renderTime = this._interpData.clientTime - LERP_MS;
-            if(this._interpData.startUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].serverTimeMs <= this._interpData.renderTime) {
-                this._interpData.startUpdate = this._packetQueue.shift();
+            if(this._interpData.startUpdate === null && this._packetQueue.length > 0) {
+                for (let i = this._packetQueue.length - 1; i >= 0; i--) {
+                    if (this._packetQueue[i].serverTimeMs <= this._interpData.renderTime) {
+                        this._interpData.startUpdate = this._packetQueue[i];
+                        this._packetQueue = this._packetQueue.slice(i + 1);
+                        break;
+                    }
+                }
             }
             if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].serverTimeMs >= this._interpData.renderTime) {
                 this._interpData.endUpdate = this._packetQueue.shift();
