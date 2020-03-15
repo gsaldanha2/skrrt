@@ -20,6 +20,7 @@ export default class MenuState {
         this._nickInput = $('#nickInput');
 
         this._servers = {
+            // 'North America': 'ws://localhost:8005'
             'North America': 'ws://35.239.58.6:8005'
             // 'US-CA': 'ws://localhost:4000'
         };
@@ -83,7 +84,7 @@ export default class MenuState {
             let msgBuf = buffers.MessageBuffer.getRootAsMessageBuffer(buf);
             if(msgBuf.messageType() === buffers.MessageUnion.ServerDataBuffer) {
                 let dataBuf = msgBuf.message(new buffers.ServerDataBuffer());
-                this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias + ' - ' + dataBuf.playerCount() + ' active');
+                this._serverSelect.find('option[value="' + stateManager.connection.alias + '"]').text(stateManager.connection.alias);
                 if(this._lt !== undefined) $('#ping').text('Ping: ' + (Date.now() - this._lt));
             }
         };

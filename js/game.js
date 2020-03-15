@@ -42,7 +42,7 @@ export default class Game {
             };
             window.onkeyup = (e) => {
                 let key = e.keyCode ? e.keyCode : e.which;
-                if (key == 32) this._inputPacket.slow = false;
+                if (key === 32) this._inputPacket.slow = false;
             };
         };
 
@@ -104,7 +104,13 @@ export default class Game {
 
         this._loadStartEndPackets = () => {
             this._interpData.renderTime = this._interpData.clientTime - LERP_MS;
-            if(this._interpData.startUpdate === null && this._packetQueue.length > 0) {
+
+            if (this._interpData.endUpdate !== null && this._interpData.renderTime > this._interpData.endUpdate.serverTimeMs) {
+                this._interpData.startUpdate = this._interpData.endUpdate;
+                this._interpData.endUpdate = null;
+            }
+
+            if(this._packetQueue.length > 0) {
                 for (let i = this._packetQueue.length - 1; i >= 0; i--) {
                     if (this._packetQueue[i].serverTimeMs <= this._interpData.renderTime) {
                         this._interpData.startUpdate = this._packetQueue[i];
@@ -113,10 +119,14 @@ export default class Game {
                     }
                 }
             }
-            if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0 && this._packetQueue[0].serverTimeMs >= this._interpData.renderTime) {
-                this._interpData.endUpdate = this._packetQueue.shift();
-                this._setupStartUpdateVelocities();
-                this.leaderboard = this._interpData.startUpdate.leaderboard;
+            if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0) {
+                if (this._packetQueue[0].serverTimeMs >= this._interpData.renderTime) {
+                    this._interpData.endUpdate = this._packetQueue.shift();
+                    this._setupStartUpdateVelocities();
+                    this.leaderboard = this._interpData.startUpdate.leaderboard;
+                } else {
+                    console.log(this._packetQueue[0].serverTimeMs);
+                }
             }
         };
 
@@ -134,10 +144,6 @@ export default class Game {
                     entity.stats.gasLevel = entity.stats.gasLevelStart + entity.stats.gasLevelDelta * ratio;
                 }
             }
-            if (ratio >= 1) {
-                this._interpData.startUpdate = this._interpData.endUpdate;
-                this._interpData.endUpdate = null;
-            }
         };
 
         this.updateEntities = () => {
@@ -150,15 +156,14 @@ export default class Game {
             this._loadStartEndPackets();
 
             if (this._interpData.startUpdate === null) {
-                // console.log('no start');
                 return;
             }
             if (this._interpData.endUpdate === null) {
-                // console.log('no end');
-                if(this._packetQueue.length > 0) {
-                    // console.log('backup');
-                    this._preventPacketBackup();
-                }
+                // if(this._packetQueue.length > 0) {
+                //     // console.log(this._interpData.renderTime, this._interpData.startUpdate.serverTimeMs);
+                //     console.log('backup');
+                //     // this._preventPacketBackup();
+                // }
             } else {
                 this._interpolate();
             }
@@ -187,7 +192,7 @@ export default class Game {
             packet.player.stats.gasLevel = buffer.gasLevel();
             packet.serverTimeMs = buffer.serverTimeMs().toFloat64();
             packet.myInfo = buffer.myInfo();
-            if(this._interpData.clientTime === undefined) this._interpData.clientTime = packet.serverTimeMs;
+            if (this._interpData.clientTime === undefined) this._interpData.clientTime = packet.serverTimeMs;
             return packet;
         };
 
