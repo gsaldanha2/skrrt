@@ -1,7 +1,7 @@
 /**
  * Created by Gregory on 6/12/17.
  */
-const LERP_MS = 100;
+const LERP_MS = 110;
 
 export default class Game {
 
@@ -113,14 +113,17 @@ export default class Game {
             if(this._packetQueue.length > 0) {
                 for (let i = this._packetQueue.length - 1; i >= 0; i--) {
                     if (this._packetQueue[i].serverTimeMs <= this._interpData.renderTime) {
+                        console.log(i);
                         this._interpData.startUpdate = this._packetQueue[i];
                         this._packetQueue = this._packetQueue.slice(i + 1);
+                        console.log(this._packetQueue);
                         break;
                     }
                 }
             }
             if(this._interpData.startUpdate !== null && this._interpData.endUpdate === null && this._packetQueue.length > 0) {
                 if (this._packetQueue[0].serverTimeMs >= this._interpData.renderTime) {
+                    console.log("got send result");
                     this._interpData.endUpdate = this._packetQueue.shift();
                     this._setupStartUpdateVelocities();
                     this.leaderboard = this._interpData.startUpdate.leaderboard;
@@ -154,11 +157,13 @@ export default class Game {
             this._interpData.clientTime += delta;
 
             this._loadStartEndPackets();
+            console.log(this._interpData.endUpdate == null);
 
             if (this._interpData.startUpdate === null) {
                 return;
             }
             if (this._interpData.endUpdate === null) {
+                console.log("extrapolating");
                 // if(this._packetQueue.length > 0) {
                 //     // console.log(this._interpData.renderTime, this._interpData.startUpdate.serverTimeMs);
                 //     console.log('backup');
